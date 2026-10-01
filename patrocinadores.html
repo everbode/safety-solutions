@@ -1,42 +1,53 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Patrocinadores | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script><style>
-.sponsor-admin-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:22px}.sponsor-list{display:grid;gap:12px}.sponsor-item{padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.sponsor-item .actions{margin-top:12px}.mini{font-size:12px}.form-grid textarea{min-height:90px}@media(max-width:900px){.sponsor-admin-grid{grid-template-columns:1fr}}
-</style></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="admin.html">Admin</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header>
-<main class="container"><div class="page-title"><span class="eyebrow">PATROCINADORES</span><h1>📣 Espaços patrocinados</h1><p class="muted">Gerencie blocos discretos que aparecem entre seções do site, sem pop-ups, sobreposições ou banners fixos.</p></div><div id="msg" class="notice hidden"></div><div id="content" class="hidden sponsor-admin-grid">
-<section><div class="panel"><div class="section-head"><span class="gold">CADASTRO</span><h2 id="formTitle">Novo patrocinador</h2></div><form id="form" class="form-grid"><input type="hidden" id="sponsorId"><div><label>Nome</label><input id="name" required maxlength="80"></div><div><label>Prioridade</label><input id="priority" type="number" min="-1000" max="1000" value="0"></div><div class="full"><label>Mensagem curta</label><input id="headline" required maxlength="160" placeholder="Ex.: Especialistas em comércio de alto valor"></div><div class="full"><label>URL da imagem/logo (opcional)</label><input id="imageUrl" type="url" placeholder="https://..."></div><div class="full"><label>Link de destino (opcional)</label><input id="targetUrl" type="url" placeholder="https://..."></div><div><label>Local</label><select id="placement"><option value="general">Geral</option><option value="dashboard">Painel</option><option value="market">Mercado</option><option value="auctions">Leilões</option><option value="tenders">Licitações</option><option value="investments">Investimentos</option><option value="analytics">Analytics</option></select></div><div><label>Ativo</label><select id="active"><option value="true">Sim</option><option value="false">Não</option></select></div><div><label>Início (opcional)</label><input id="startsAt" type="datetime-local"></div><div><label>Fim (opcional)</label><input id="endsAt" type="datetime-local"></div><div class="full actions"><button class="btn primary" type="submit">Salvar patrocinador</button><button class="btn" type="button" onclick="resetForm()">Limpar</button></div></form></div></section>
+.sponsor-admin-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:22px}.sponsor-list{display:grid;gap:12px}.sponsor-item{padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.sponsor-item .actions{margin-top:12px}.mini{font-size:12px}.form-grid textarea{min-height:90px}.package-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 34px}.package{padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.package h3{margin:8px 0 4px}.package-price{font-size:23px;font-weight:900;color:var(--gold)}.package.master{border-color:#80672f}.tier-preview{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tier-preview span{padding:10px;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:12px}.tier-preview b{display:block;color:var(--text);margin-bottom:2px}@media(max-width:1000px){.package-grid{grid-template-columns:1fr 1fr}}@media(max-width:900px){.sponsor-admin-grid{grid-template-columns:1fr}}@media(max-width:600px){.package-grid,.tier-preview{grid-template-columns:1fr}}
+</style></head><body>
+<header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="admin.html">Admin</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header>
+<main class="container"><div class="page-title"><span class="eyebrow">PATROCINADORES</span><h1>📣 Espaços patrocinados</h1><p class="muted">Os anúncios ocupam espaço real no conteúdo, com tamanhos proporcionais ao pacote contratado. Nenhum formato usa pop-up, sobreposição ou interfere na navegação.</p></div><div id="msg" class="notice hidden"></div><div id="content" class="hidden">
+<section><div class="section-head"><span class="gold">CLASSIFICAÇÃO E PREÇOS</span><h2>Pacotes de patrocínio</h2><p class="muted">Quanto maior a presença visual, maior o preço em HC. A duração padrão também faz parte do pacote.</p></div><div id="packages" class="package-grid"></div></section>
+<div class="sponsor-admin-grid">
+<section><div class="panel"><div class="section-head"><span class="gold">CADASTRO</span><h2 id="formTitle">Novo patrocinador</h2></div><form id="form" class="form-grid"><input type="hidden" id="sponsorId">
+<div><label>Nome</label><input id="name" required maxlength="80"></div>
+<div><label>Classificação</label><select id="tier"><option value="supporter">Apoiador</option><option value="highlight">Destaque</option><option value="premium">Premium</option><option value="master">Master</option></select></div>
+<div class="full"><label>Mensagem curta</label><input id="headline" required maxlength="160" placeholder="Ex.: Especialistas em comércio de alto valor"></div>
+<div class="full"><label>URL da imagem/logo</label><input id="imageUrl" type="url" placeholder="https://..."></div>
+<div class="full"><label>Link de destino (opcional)</label><input id="targetUrl" type="url" placeholder="https://..."></div>
+<div><label>Local</label><select id="placement"><option value="general">Geral</option><option value="dashboard">Painel</option><option value="market">Mercado</option><option value="auctions">Leilões</option><option value="tenders">Licitações</option><option value="investments">Investimentos</option><option value="analytics">Analytics</option></select></div>
+<div><label>Prioridade interna</label><input id="priority" type="number" min="-1000" max="1000" value="0"></div>
+<div><label>Ativo</label><select id="active"><option value="true">Sim</option><option value="false">Não</option></select></div>
+<div><label>Início (opcional)</label><input id="startsAt" type="datetime-local"></div>
+<div><label>Fim (opcional)</label><input id="endsAt" type="datetime-local"></div>
+<div class="full"><div class="notice"><b id="selectedTierName">Apoiador</b><br><span id="selectedTierInfo" class="muted"></span></div></div>
+<div class="full actions"><button class="btn primary" type="submit">Salvar patrocinador</button><button class="btn" type="button" onclick="resetForm()">Limpar</button></div></form></div></section>
 <section><div class="section-head"><span class="gold">ATIVOS E HISTÓRICO</span><h2>Patrocinadores cadastrados</h2></div><div id="list" class="sponsor-list"></div></section>
-</div></main>
+</div></div></main>
 <script>
-let roleLevel=0,rows=[];const LEVEL={auditor:10,moderator:20,admin:30,owner:40};
+let roleLevel=0,rows=[],packageRows=[];const LEVEL={auditor:10,moderator:20,admin:30,owner:40};
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function toLocal(v){if(!v)return "";const d=new Date(v),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes())}
+function tierLabel(t){return ({supporter:"Apoiador",highlight:"Destaque",premium:"Premium",master:"Master"})[t]||t}
+function tierSize(t){return ({supporter:"Faixa horizontal ampla",highlight:"Bloco médio em destaque",premium:"Bloco grande de alta visibilidade",master:"Faixa principal em largura total"})[t]||""}
 async function load(){
  try{
   const db=Safety.db(),u=await Safety.requireUser();
   const{data:mod}=await db.from("moderators").select("role").eq("user_id",u.id).maybeSingle();
-  roleLevel=LEVEL[mod?.role]||0;
-  if(roleLevel<30){Safety.msg(msg,"⛔ Esta área exige nível Administrador ou Proprietário.","error");return}
+  roleLevel=LEVEL[mod?.role]||0;if(roleLevel<30){Safety.errorMsg(msg,"Insufficient moderator level","sponsor-admin");return}
   content.classList.remove("hidden");
-  const{data,error}=await db.rpc("admin_sponsors_feed");if(error)throw error;rows=data||[];render();
- }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+e.message,"error")}
+  const[a,b]=await Promise.all([db.rpc("admin_sponsors_feed"),db.rpc("sponsor_packages_feed")]);if(a.error)throw a.error;if(b.error)throw b.error;
+  rows=a.data||[];packageRows=b.data||[];renderPackages();render();updateTierInfo()
+ }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.errorMsg(msg,e,"sponsor-admin-load")}
+}
+function renderPackages(){
+ packages.innerHTML=packageRows.map(p=>'<article class="package '+esc(p.tier)+'"><span class="tag">'+esc(p.label)+'</span><h3>'+esc(tierSize(p.tier))+'</h3><div class="package-price">'+Safety.hc(p.price_hc)+'</div><p class="muted">por '+p.duration_days+' dias</p><p class="mini">'+esc(p.description)+'</p>'+(roleLevel>=40?'<button class="btn small" onclick="editPackage(\''+p.tier+'\')">Editar preço</button>':'')+'</article>').join("")
 }
 function render(){
- list.innerHTML=rows.length?rows.map(s=>'<article class="sponsor-item"><div class="inline"><span class="tag '+(s.active?"ok":"danger")+'">'+(s.active?"ativo":"inativo")+'</span><span class="tag">'+esc(s.placement)+'</span><b>'+esc(s.name)+'</b></div><p>'+esc(s.headline)+'</p><p class="muted mini">Prioridade: '+s.priority+(s.starts_at?' • início '+Safety.date(s.starts_at):'')+(s.ends_at?' • fim '+Safety.date(s.ends_at):'')+'</p><div class="actions"><button class="btn small" onclick="editSponsor('+s.id+')">Editar</button><button class="btn danger small" onclick="deleteSponsor('+s.id+')">Excluir</button></div></article>').join(""):'<div class="card"><p class="muted">Nenhum patrocinador cadastrado.</p></div>';
+ list.innerHTML=rows.length?rows.map(s=>'<article class="sponsor-item"><div class="inline"><span class="tag '+(s.active?"ok":"danger")+'">'+(s.active?"ativo":"inativo")+'</span><span class="tag">'+esc(s.tier_label||tierLabel(s.tier))+'</span><span class="tag">'+esc(s.placement)+'</span><b>'+esc(s.name)+'</b></div><p>'+esc(s.headline)+'</p><p class="muted mini">Pacote: <b>'+Safety.hc(s.price_hc)+'</b> / '+s.duration_days+' dias • Prioridade: '+s.priority+(s.starts_at?' • início '+Safety.date(s.starts_at):'')+(s.ends_at?' • fim '+Safety.date(s.ends_at):'')+'</p><div class="actions"><button class="btn small" onclick="editSponsor('+s.id+')">Editar</button><button class="btn danger small" onclick="deleteSponsor('+s.id+')">Excluir</button></div></article>').join(""):'<div class="card"><p class="muted">Nenhum patrocinador cadastrado.</p></div>'
 }
-function resetForm(){form.reset();sponsorId.value="";priority.value="0";active.value="true";placement.value="general";formTitle.textContent="Novo patrocinador"}
-function editSponsor(id){
- const s=rows.find(x=>x.id===id);if(!s)return;
- sponsorId.value=s.id;name.value=s.name;headline.value=s.headline;imageUrl.value=s.image_url||"";targetUrl.value=s.target_url||"";placement.value=s.placement;priority.value=s.priority;active.value=String(s.active);startsAt.value=toLocal(s.starts_at);endsAt.value=toLocal(s.ends_at);formTitle.textContent="Editar patrocinador #"+s.id;scrollTo({top:0,behavior:"smooth"});
-}
-form.addEventListener("submit",async e=>{
- e.preventDefault();
- try{
-  const args={p_id:sponsorId.value?Number(sponsorId.value):null,p_name:name.value.trim(),p_headline:headline.value.trim(),p_image_url:imageUrl.value.trim()||null,p_target_url:targetUrl.value.trim()||null,p_placement:placement.value,p_priority:Number(priority.value||0),p_active:active.value==="true",p_starts_at:startsAt.value?new Date(startsAt.value).toISOString():null,p_ends_at:endsAt.value?new Date(endsAt.value).toISOString():null};
-  const{error}=await Safety.db().rpc("admin_save_sponsor",args);if(error)throw error;resetForm();await load();Safety.msg(msg,"✅ Patrocinador salvo.","success")
- }catch(e){Safety.msg(msg,"❌ "+e.message,"error")}
-});
-async function deleteSponsor(id){
- const reason=prompt("Motivo da exclusão do patrocinador:");if(!reason)return;if(!confirm("Excluir este patrocinador?"))return;
- try{const{error}=await Safety.db().rpc("admin_delete_sponsor",{p_id:id,p_reason:reason});if(error)throw error;await load()}catch(e){alert("Erro: "+e.message)}
-}
+function updateTierInfo(){const p=packageRows.find(x=>x.tier===tier.value);selectedTierName.textContent=p?.label||tierLabel(tier.value);selectedTierInfo.textContent=p?Safety.hc(p.price_hc)+" por "+p.duration_days+" dias • "+tierSize(p.tier):tierSize(tier.value)}
+function resetForm(){form.reset();sponsorId.value="";priority.value="0";active.value="true";placement.value="general";tier.value="supporter";formTitle.textContent="Novo patrocinador";updateTierInfo()}
+function editSponsor(id){const s=rows.find(x=>x.id===id);if(!s)return;sponsorId.value=s.id;name.value=s.name;headline.value=s.headline;imageUrl.value=s.image_url||"";targetUrl.value=s.target_url||"";placement.value=s.placement;priority.value=s.priority;tier.value=s.tier||"supporter";active.value=String(s.active);startsAt.value=toLocal(s.starts_at);endsAt.value=toLocal(s.ends_at);formTitle.textContent="Editar patrocinador #"+s.id;updateTierInfo();scrollTo({top:0,behavior:"smooth"})}
+tier.onchange=updateTierInfo;
+form.addEventListener("submit",async e=>{e.preventDefault();try{const args={p_id:sponsorId.value?Number(sponsorId.value):null,p_name:name.value.trim(),p_headline:headline.value.trim(),p_image_url:imageUrl.value.trim()||null,p_target_url:targetUrl.value.trim()||null,p_placement:placement.value,p_priority:Number(priority.value||0),p_tier:tier.value,p_active:active.value==="true",p_starts_at:startsAt.value?new Date(startsAt.value).toISOString():null,p_ends_at:endsAt.value?new Date(endsAt.value).toISOString():null};const{error}=await Safety.db().rpc("admin_save_sponsor",args);if(error)throw error;resetForm();await load();Safety.msg(msg,"✅ Patrocinador salvo.","success")}catch(e){Safety.errorMsg(msg,e,"save-sponsor")}});
+async function editPackage(t){const p=packageRows.find(x=>x.tier===t);if(!p)return;const price=prompt("Novo preço em HC para "+p.label+":",p.price_hc);if(price===null)return;const days=prompt("Duração padrão em dias:",p.duration_days);if(days===null)return;try{const{error}=await Safety.db().rpc("owner_update_sponsor_package",{p_tier:t,p_price_hc:Number(price),p_duration_days:Number(days),p_enabled:true});if(error)throw error;await load();Safety.msg(msg,"✅ Pacote atualizado.","success")}catch(e){Safety.errorAlert(e,"update-sponsor-package")}}
+async function deleteSponsor(id){const reason=prompt("Motivo da exclusão do patrocinador:");if(!reason)return;if(!confirm("Excluir este patrocinador?"))return;try{const{error}=await Safety.db().rpc("admin_delete_sponsor",{p_id:id,p_reason:reason});if(error)throw error;await load()}catch(e){Safety.errorAlert(e,"delete-sponsor")}}
 load();
 </script></body></html>
