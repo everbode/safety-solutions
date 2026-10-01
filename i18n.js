@@ -456,18 +456,28 @@ function walk(root,l){
   const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT);
   let n;while(n=w.nextNode()){if(n.nodeType===Node.TEXT_NODE)translateTextNode(n,l);else translateAttrs(n,l)}
 }
+function updatePickerUI(){
+  const current=lang();
+  document.querySelectorAll(".language-picker button[data-lang]").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.lang===current);
+    btn.setAttribute("aria-pressed",String(btn.dataset.lang===current))
+  })
+}
 function apply(l=lang()){
   document.documentElement.lang=locale[l]||"pt-BR";
   walk(document,l);
-  document.querySelectorAll(".language-picker select").forEach(s=>s.value=l)
+  updatePickerUI()
 }
 function makePicker(){
   if(document.querySelector(".language-picker"))return;
   const host=document.querySelector(".navlinks")||document.querySelector(".nav");if(!host)return;
-  const wrap=document.createElement("label");wrap.className="language-picker";wrap.setAttribute("data-no-i18n","");
-  wrap.innerHTML='<span aria-hidden="true">🌐</span><select aria-label="Language"><option value="pt">🇧🇷 PT</option><option value="en">🇺🇸 EN</option><option value="es">🇪🇸 ES</option><option value="tr">🇹🇷 TR</option></select>';
-  const select=wrap.querySelector("select");select.value=lang();select.addEventListener("change",()=>setLanguage(select.value));
-  host.prepend(wrap)
+  const wrap=document.createElement("div");wrap.className="language-picker";wrap.setAttribute("data-no-i18n","");
+  wrap.innerHTML='<span class="lang-icon" aria-hidden="true">🌐</span><div class="lang-buttons" role="group" aria-label="Language"><button type="button" data-lang="pt" aria-label="Português">PT</button><button type="button" data-lang="en" aria-label="English">EN</button><button type="button" data-lang="es" aria-label="Español">ES</button><button type="button" data-lang="tr" aria-label="Türkçe">TR</button></div>';
+  wrap.querySelectorAll("button[data-lang]").forEach(btn=>{
+    btn.addEventListener("click",()=>setLanguage(btn.dataset.lang))
+  });
+  host.prepend(wrap);
+  updatePickerUI()
 }
 function setLanguage(l){
   if(!langs[l])return;
