@@ -309,9 +309,10 @@
 
     <nav>
         <a href="#" class="login">Entrar</a>
-        <a href="#" class="register">Cadastrar</a>
-    </nav>
+        <a href="#cadastro" class="register" onclick="mostrarCadastro()">Cadastrar</a>
+
 </header>
+ 
 
  <section id="cadastro" class="cadastro-section">
 
@@ -502,6 +503,18 @@
 <footer>
     © 2026 Safety Solutions — Negocie com segurança. Transacione com confiança.
 </footer>
+ 
+<script>
+function mostrarCadastro() {
+    const cadastro = document.getElementById("cadastro");
 
+    cadastro.style.display = "block";
+
+    cadastro.scrollIntoView({
+        behavior: "smooth"
+    });
+}
+</script>
+ 
 </body>
 </html>
