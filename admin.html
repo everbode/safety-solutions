@@ -2,7 +2,7 @@
 .admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 30px}.admin-tabs button.active{background:#e3a82f;color:#080c11;border-color:#e3a82f}.admin-section{display:none}.admin-section.active{display:block}.admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.admin-kpi{padding:18px}.admin-kpi .stat{font-size:26px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}.toolbar input,.toolbar select{max-width:320px}.compact p{margin:7px 0}.danger-zone{border-color:#6d3434}.code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word}.admin-list{display:grid;gap:12px}.admin-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:18px;background:#10161d;border:1px solid #252e38;border-radius:12px}.admin-row .actions{margin-top:0;justify-content:flex-end}.mini{font-size:12px}.pill-row{display:flex;gap:7px;flex-wrap:wrap}.search-wide{max-width:460px!important}@media(max-width:900px){.admin-grid{grid-template-columns:repeat(2,1fr)}.admin-row{grid-template-columns:1fr}.admin-row .actions{justify-content:flex-start}}@media(max-width:560px){.admin-grid{grid-template-columns:1fr}}</style></head><body>
 <header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="admin-alertas.html">Safety Alert</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header>
 <main class="container">
-<div class="page-title"><span class="eyebrow">CENTRAL ADMINISTRATIVA</span><h1>🛡️ Controle da plataforma</h1><p class="muted">Acompanhe usuários, créditos, anúncios, negociações, custódias, disputas, leilões, licitações, investimentos e trilha de auditoria.</p></div>
+<div class="page-title"><span class="eyebrow">CENTRAL ADMINISTRATIVA</span><h1>🛡️ Controle da plataforma</h1><p class="muted">Acompanhe usuários, créditos, anúncios, negociações, custódias, disputas, leilões, licitações, investimentos e trilha de auditoria.</p><div id="myRole" class="notice hidden"></div></div>
 <div id="msg" class="notice hidden"></div>
 <div id="adminContent" class="hidden">
 <div id="overviewCards" class="admin-grid"></div>
@@ -28,7 +28,7 @@
 </section>
 
 <section id="tab-users" class="admin-section">
-<div class="section-head"><span class="gold">CONTAS E HUBCREDIT</span><h2>Usuários da plataforma</h2></div>
+<div class="section-head"><span class="gold">CONTAS E HUBCREDIT</span><h2>Usuários da plataforma</h2></div><div class="notice"><b>Níveis da equipe:</b> 👁️ Auditor = leitura • 🛡️ Moderador = moderação operacional • ⚙️ Administrador = controles financeiros e custódia • 👑 Proprietário = controle máximo, inclusive níveis da equipe.</div>
 <div class="toolbar"><input id="userSearch" class="search-wide" placeholder="Buscar usuário, instituição, país ou tipo..."><select id="userStatusFilter"><option value="">Todos os status</option><option value="active">Ativos</option><option value="awaiting_verification">Aguardando verificação</option><option value="suspended">Suspensos</option><option value="rejected">Rejeitados</option></select></div>
 <div id="usersList" class="admin-list"></div>
 </section>
@@ -66,7 +66,7 @@
 </div>
 </main>
 <script>
-let adminData={overview:null,users:[],transactions:[],listings:[],offers:[],disputes:[],auctions:[],tenders:[],initiatives:[],logs:[]};
+let adminData={overview:null,users:[],transactions:[],listings:[],offers:[],disputes:[],auctions:[],tenders:[],initiatives:[],logs:[]};let myModeratorRole=null,myModeratorLevel=0;const ROLE_LEVEL={auditor:10,moderator:20,admin:30,owner:40};const ROLE_LABEL={auditor:"👁️ Auditor",moderator:"🛡️ Moderador",admin:"⚙️ Administrador",owner:"👑 Proprietário"};function can(level){return myModeratorLevel>=level}
 
 document.querySelectorAll(".admin-tabs button[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{
  document.querySelectorAll(".admin-tabs button[data-tab]").forEach(x=>x.classList.remove("active"));
@@ -82,8 +82,9 @@ function tag(status){const c=status==="active"||status==="completed"||status==="
 async function loadAll(){
  try{
   const db=Safety.db(),u=await Safety.requireUser();
-  const{data:mod}=await db.from("moderators").select("user_id").eq("user_id",u.id).maybeSingle();
+  const{data:mod}=await db.from("moderators").select("user_id,role").eq("user_id",u.id).maybeSingle();
   if(!mod){Safety.msg(msg,"⛔ Esta conta não possui permissão administrativa.","error");return}
+  myModeratorRole=mod.role||"moderator";myModeratorLevel=ROLE_LEVEL[myModeratorRole]||0;myRole.textContent="Seu nível: "+(ROLE_LABEL[myModeratorRole]||myModeratorRole)+" • Nível "+myModeratorLevel;myRole.classList.remove("hidden");
   adminContent.classList.remove("hidden");
   const [overview,users,tx,listings,offers,disputes,auctions,tenders,initiatives,logs]=await Promise.all([
    db.rpc("admin_overview"),db.rpc("admin_users_feed"),db.rpc("admin_transactions_feed"),
