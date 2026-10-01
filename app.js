@@ -31,6 +31,8 @@ window.Safety={
     "SS-TND-001":{title:"Licitação ou proposta indisponível",action:"Atualize a página e confirme se a licitação ainda está aberta."},
     "SS-INV-001":{title:"Iniciativa indisponível",action:"Atualize a página e confira o estado atual da iniciativa antes de tentar novamente."},
     "SS-SPN-001":{title:"Erro no sistema de patrocinadores",action:"Revise os dados do patrocinador e tente novamente. Se persistir, envie este código à administração."},
+    "SS-NET-002":{title:"Erro na rede comercial",action:"Atualize a página e confira se a parceria ainda está disponível. Se persistir, envie o protocolo à moderação."},
+    "SS-CTR-001":{title:"Erro no contrato comercial",action:"Confira o status do contrato ou da parcela e tente novamente. Se persistir, envie o protocolo à moderação."},
     "SS-DATA-001":{title:"Registro duplicado",action:"Esse dado já existe. Atualize a página e verifique o cadastro antes de tentar novamente."},
     "SS-DATA-002":{title:"Dados inválidos ou incompletos",action:"Revise os campos preenchidos e tente novamente."},
     "SS-DB-001":{title:"Falha de comunicação com o banco",action:"Atualize a página e tente novamente. Se persistir, envie este código à moderação."},
@@ -63,6 +65,8 @@ window.Safety={
     else if(s.includes("auction"))code="SS-AUC-001";
     else if(s.includes("tender")||s.includes("proposal unavailable"))code="SS-TND-001";
     else if(s.includes("initiative"))code="SS-INV-001";
+    else if(s.includes("partnership")||s.includes("partner profile"))code="SS-NET-002";
+    else if(s.includes("contract")||s.includes("counterparty")||s.includes("cycle unavailable"))code="SS-CTR-001";
     else if(s.includes("sponsor"))code="SS-SPN-001";
     else if(s.includes("pgrst")||s.includes("database")||s.includes("sql")||s.includes("relation")||s.includes("column"))code="SS-DB-001";
     return {code,raw}
