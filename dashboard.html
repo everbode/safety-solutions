@@ -1,1 +1,72 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Painel | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="mercado.html">Mercado</a><a class="btn small" href="leiloes.html">Leilões</a><a class="btn small" href="licitacoes.html">Licitações</a><a class="btn small" href="investimentos.html">Invest</a><a class="btn small" href="transacoes.html">Transações</a><a class="btn small" href="contratos.html">Contratos</a><a class="btn small" href="rede.html">Rede</a><a class="btn small" href="perfil.html">Perfil</a><a class="btn primary small" href="nova-oferta.html">+ Oferta</a><a id="adminLink" class="btn small hidden" href="admin.html">Moderação</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header><main class="container"><div class="page-title"><span class="eyebrow">PAINEL</span><h1 id="hello">Carregando...</h1><p class="muted">Visão geral da sua conta e das operações recentes.</p></div><div id="msg" class="notice hidden"></div><div class="grid cols3"><div class="card kpi"><span class="muted">💰 HubCredit de teste</span><span class="stat" id="balance">—</span></div><div class="card kpi"><span class="muted">Status da conta</span><span class="stat" id="status">—</span></div><div class="card kpi"><span class="muted">Tipo de conta</span><span class="stat" id="type">—</span></div></div><section class="sponsor-zone"><span class="sponsor-label">Patrocinado</span><div data-sponsor-placement="dashboard"></div></section><section class="section" style="padding-bottom:20px"><div class="section-head inline"><div><span class="gold">ATIVIDADE</span><h2>Transações recentes</h2></div><a class="btn right" href="transacoes.html">Ver todas</a></div><div id="tx" class="grid cols2"></div></section><section class="section alt" style="margin-inline:calc(50% - 50vw);padding-inline:24px"><div class="container"><div class="section-head"><span class="gold">ATALHOS</span><h2>Operar na plataforma</h2></div><div class="grid cols4"><a class="card" href="mercado.html"><h3>🛒 Mercado</h3><p class="muted">Ver ofertas abertas.</p></a><a class="card" href="nova-oferta.html"><h3>➕ Nova oferta</h3><p class="muted">Anunciar um grande lote.</p></a><a class="card" href="negociacoes.html"><h3>🤝 Negociações</h3><p class="muted">Responder contrapropostas.</p></a><a class="card" href="transacoes.html"><h3>🔐 Custódia</h3><p class="muted">Acompanhar operações em andamento.</p></a></div></div></section><section class="section"><div class="section-head"><span class="gold">INTELIGÊNCIA E CONFIANÇA</span><h2>Ferramentas avançadas</h2></div><div class="grid cols4"><a class="card" href="analytics.html"><h3>📊 Safety Analytics</h3><p class="muted">Volume, preços médios e atividade registrada.</p></a><a class="card" href="reputacao.html"><h3>🏢 Histórico</h3><p class="muted">Indicadores objetivos de usuários e instituições.</p></a><a class="card" href="safety-alert.html"><h3>⚠️ Safety Alert</h3><p class="muted">Incidentes verificados e contestações.</p></a><a class="card" href="rede.html"><h3>🔗 Rede Comercial</h3><p class="muted">Construa relações públicas e confirmadas com parceiros.</p></a><a class="card" href="contratos.html"><h3>📄 Contratos</h3><p class="muted">Acordos recorrentes com calendário e custódia por parcela.</p></a><a class="card" href="perfil.html"><h3>🏛️ Perfil Comercial</h3><p class="muted">Sua identidade institucional, histórico e presença na Safety.</p></a></div></section></main><script>(async()=>{try{const db=Safety.db(),u=await Safety.requireUser();const[{data:p},{data:w},{data:t}]=await Promise.all([db.from("profiles").select("*").eq("id",u.id).single(),db.from("wallets").select("*").eq("user_id",u.id).single(),db.rpc("my_transactions")]);hello.textContent="Olá, "+(p?.username||u.email);balance.textContent=Safety.hc(w?.balance);status.textContent=p?.account_status||"—";type.textContent=p?.user_type||"—";const rows=(t||[]).slice(0,4);tx.innerHTML=rows.length?rows.map(x=>'<div class="card"><span class="tag">'+x.status+'</span><h3>'+x.product+' • '+Safety.num(x.quantity)+' un.</h3><p class="muted">'+(x.my_role==="buyer"?"Compra de ":"Venda para ")+x.counterpart_username+'</p><div class="price">'+Safety.hc(x.amount)+'</div></div>').join(""):'<div class="card"><p class="muted">Nenhuma transação ainda.</p></div>'}catch(err){if(err.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(err.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+err.message,"error")}})();</script></body></html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Painel | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="mercado.html">Mercado</a><a class="btn small" href="leiloes.html">Leilões</a><a class="btn small" href="licitacoes.html">Licitações</a><a class="btn small" href="investimentos.html">Invest</a><a class="btn small" href="transacoes.html">Transações</a><a class="btn small" href="contratos.html">Contratos</a><a class="btn small" href="rede.html">Rede</a><a class="btn small" href="perfil.html">Perfil</a><a class="btn primary small" href="nova-oferta.html">+ Oferta</a><a id="adminLink" class="btn small hidden" href="admin.html">Moderação</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header><main class="container"><div class="page-title"><span class="eyebrow">PAINEL</span><h1 id="hello">Carregando...</h1><p class="muted">Visão geral da sua conta e das operações recentes.</p></div><div id="msg" class="notice hidden"></div><div class="grid cols3"><div class="card kpi"><span class="muted">💰 HubCredit de teste</span><span class="stat" id="balance">—</span></div><div class="card kpi"><span class="muted">Status da conta</span><span class="stat" id="status">—</span></div><div class="card kpi"><span class="muted">Tipo de conta</span><span class="stat" id="type">—</span></div></div>
+<section class="daily-chest card" id="dailyChest">
+  <div class="daily-chest-icon">🎁</div>
+  <div class="daily-chest-copy">
+    <span class="gold">BAÚ DIÁRIO</span>
+    <h2 style="margin:4px 0 6px">Recompensa de acesso</h2>
+    <p class="muted" id="chestInfo">Carregando disponibilidade...</p>
+    <p class="daily-chest-range" id="chestRange">—</p>
+  </div>
+  <div class="daily-chest-action">
+    <button class="btn primary" id="claimChest" type="button" disabled>Abrir baú</button>
+    <span class="muted mini" id="chestTimer"></span>
+  </div>
+</section>
+<section class="sponsor-zone"><span class="sponsor-label">Patrocinado</span><div data-sponsor-placement="dashboard"></div></section><section class="section" style="padding-bottom:20px"><div class="section-head inline"><div><span class="gold">ATIVIDADE</span><h2>Transações recentes</h2></div><a class="btn right" href="transacoes.html">Ver todas</a></div><div id="tx" class="grid cols2"></div></section><section class="section alt" style="margin-inline:calc(50% - 50vw);padding-inline:24px"><div class="container"><div class="section-head"><span class="gold">ATALHOS</span><h2>Operar na plataforma</h2></div><div class="grid cols4"><a class="card" href="mercado.html"><h3>🛒 Mercado</h3><p class="muted">Ver ofertas abertas.</p></a><a class="card" href="nova-oferta.html"><h3>➕ Nova oferta</h3><p class="muted">Anunciar um grande lote.</p></a><a class="card" href="negociacoes.html"><h3>🤝 Negociações</h3><p class="muted">Responder contrapropostas.</p></a><a class="card" href="transacoes.html"><h3>🔐 Custódia</h3><p class="muted">Acompanhar operações em andamento.</p></a></div></div></section><section class="section"><div class="section-head"><span class="gold">INTELIGÊNCIA E CONFIANÇA</span><h2>Ferramentas avançadas</h2></div><div class="grid cols4"><a class="card" href="analytics.html"><h3>📊 Safety Analytics</h3><p class="muted">Volume, preços médios e atividade registrada.</p></a><a class="card" href="reputacao.html"><h3>🏢 Histórico</h3><p class="muted">Indicadores objetivos de usuários e instituições.</p></a><a class="card" href="safety-alert.html"><h3>⚠️ Safety Alert</h3><p class="muted">Incidentes verificados e contestações.</p></a><a class="card" href="rede.html"><h3>🔗 Rede Comercial</h3><p class="muted">Construa relações públicas e confirmadas com parceiros.</p></a><a class="card" href="contratos.html"><h3>📄 Contratos</h3><p class="muted">Acordos recorrentes com calendário e custódia por parcela.</p></a><a class="card" href="perfil.html"><h3>🏛️ Perfil Comercial</h3><p class="muted">Sua identidade institucional, histórico e presença na Safety.</p></a></div></section></main><script>
+let chestNext=null,chestTimerHandle=null;
+function formatRemaining(ms){
+  if(ms<=0)return "Disponível agora";
+  const total=Math.ceil(ms/1000),h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;
+  return (h?String(h).padStart(2,"0")+":":"")+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")
+}
+function startChestTimer(){
+  clearInterval(chestTimerHandle);
+  const tick=()=>{
+    if(!chestNext)return;
+    const left=new Date(chestNext).getTime()-Date.now();
+    if(left<=0){chestTimer.textContent="Disponível agora";claimChest.disabled=false;claimChest.textContent="Abrir baú";clearInterval(chestTimerHandle);return}
+    chestTimer.textContent="Próximo baú em "+formatRemaining(left)
+  };
+  tick();chestTimerHandle=setInterval(tick,1000)
+}
+async function loadChest(db){
+  const{data,error}=await db.rpc("daily_chest_status");if(error)throw error;
+  const s=data?.[0];if(!s){dailyChest.classList.add("hidden");return}
+  chestRange.textContent=Safety.hc(s.min_reward)+" — "+Safety.hc(s.max_reward);
+  if(!s.enabled){chestInfo.textContent="O baú diário está temporariamente desativado.";claimChest.disabled=true;chestTimer.textContent="";return}
+  if(s.can_claim){
+    chestInfo.textContent="Abra uma vez a cada "+s.cooldown_hours+" horas. O valor é sorteado dentro da faixa abaixo.";
+    claimChest.disabled=false;claimChest.textContent="Abrir baú";chestTimer.textContent="Disponível agora";chestNext=null
+  }else{
+    chestInfo.textContent=s.last_reward?("Última recompensa: "+Safety.hc(s.last_reward)+"."):("Sua conta ainda não pode abrir o baú.");
+    claimChest.disabled=true;claimChest.textContent="Baú fechado";chestNext=s.next_claim_at;startChestTimer()
+  }
+}
+(async()=>{
+ try{
+  const db=Safety.db(),u=await Safety.requireUser();
+  const[{data:p},{data:w},{data:t}]=await Promise.all([
+    db.from("profiles").select("*").eq("id",u.id).single(),
+    db.from("wallets").select("*").eq("user_id",u.id).single(),
+    db.rpc("my_transactions")
+  ]);
+  hello.textContent="Olá, "+(p?.username||u.email);balance.textContent=Safety.hc(w?.balance);status.textContent=p?.account_status||"—";type.textContent=p?.user_type||"—";
+  const rows=(t||[]).slice(0,4);
+  tx.innerHTML=rows.length?rows.map(x=>'<div class="card"><span class="tag">'+x.status+'</span><h3>'+x.product+' • '+Safety.num(x.quantity)+' un.</h3><p class="muted">'+(x.my_role==="buyer"?"Compra de ":"Venda para ")+x.counterpart_username+'</p><div class="price">'+Safety.hc(x.amount)+'</div></div>').join(""):'<div class="card"><p class="muted">Nenhuma transação ainda.</p></div>';
+  await loadChest(db);
+  claimChest.onclick=async()=>{
+    claimChest.disabled=true;claimChest.textContent="Abrindo...";
+    try{
+      const{data,error}=await db.rpc("claim_daily_chest");if(error)throw error;
+      const r=data?.[0];if(!r)throw new Error("Daily chest unavailable");
+      balance.textContent=Safety.hc(r.balance_after);
+      Safety.msg(msg,"🎁 Você recebeu "+Safety.hc(r.reward)+" do Baú Diário.","success");
+      await loadChest(db)
+    }catch(e){Safety.errorMsg(msg,e,"daily-chest");await loadChest(db).catch(()=>{})}
+  }
+ }catch(err){
+  if(err.message==="CONFIG_PENDENTE")Safety.configNotice(msg);
+  else if(err.message!=="AUTH_REQUIRED")Safety.errorMsg(msg,err,"dashboard-load")
+ }
+})();
+</script></body></html>
