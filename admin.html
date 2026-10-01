@@ -15,6 +15,7 @@
 <button class="btn small" data-tab="tenders">Licitações</button>
 <button class="btn small" data-tab="invest">Investimentos</button>
 <button class="btn small" data-tab="audit">Auditoria</button>
+<button class="btn small hidden" id="chestTabBtn" data-tab="chest">Baú diário</button>
 <button class="btn primary small" onclick="loadAll()">↻ Atualizar tudo</button>
 </div>
 
@@ -63,10 +64,22 @@
 <div class="toolbar"><input id="auditSearch" class="search-wide" placeholder="Buscar ação, entidade, ID ou detalhe..."></div>
 <div class="card table-wrap"><table class="table"><thead><tr><th>Data</th><th>Ator</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Detalhes</th></tr></thead><tbody id="auditRows"></tbody></table></div>
 </section>
+
+<section id="tab-chest" class="admin-section">
+<div class="section-head"><span class="gold">ECONOMIA</span><h2>🎁 Baú diário</h2><p class="muted">O usuário começa com 0 HC. Este é o único crédito gratuito recorrente da plataforma e pode ser ajustado pelo proprietário.</p></div>
+<div id="chestAdminStats" class="admin-grid"></div>
+<div class="panel" style="margin-top:18px"><form id="chestConfigForm" class="form-grid">
+<div><label>Recompensa mínima (HC)</label><input id="chestMin" type="number" min="0" step="1" required></div>
+<div><label>Recompensa máxima (HC)</label><input id="chestMax" type="number" min="0" step="1" required></div>
+<div><label>Intervalo entre baús (horas)</label><input id="chestCooldown" type="number" min="1" max="168" required></div>
+<div><label>Sistema ativo</label><select id="chestEnabled"><option value="true">Sim</option><option value="false">Não</option></select></div>
+<div class="full actions"><button class="btn primary" type="submit">Salvar configuração do baú</button></div>
+</form></div>
+</section>
 </div>
 </main>
 <script>
-let adminData={overview:null,users:[],transactions:[],listings:[],offers:[],disputes:[],auctions:[],tenders:[],initiatives:[],logs:[]};let myModeratorRole=null,myModeratorLevel=0;const ROLE_LEVEL={auditor:10,moderator:20,admin:30,owner:40};const ROLE_LABEL={auditor:"👁️ Auditor",moderator:"🛡️ Moderador",admin:"⚙️ Administrador",owner:"👑 Proprietário"};function can(level){return myModeratorLevel>=level}
+let adminData={overview:null,users:[],transactions:[],listings:[],offers:[],disputes:[],auctions:[],tenders:[],initiatives:[],logs:[]};let chestAdmin=null;let myModeratorRole=null,myModeratorLevel=0;const ROLE_LEVEL={auditor:10,moderator:20,admin:30,owner:40};const ROLE_LABEL={auditor:"👁️ Auditor",moderator:"🛡️ Moderador",admin:"⚙️ Administrador",owner:"👑 Proprietário"};function can(level){return myModeratorLevel>=level}
 
 document.querySelectorAll(".admin-tabs button[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{
  document.querySelectorAll(".admin-tabs button[data-tab]").forEach(x=>x.classList.remove("active"));
@@ -94,11 +107,38 @@ async function loadAll(){
   ]);
   for(const r of [overview,users,tx,listings,offers,disputes,auctions,tenders,initiatives,logs]) if(r.error)throw r.error;
   adminData={overview:(overview.data||[])[0]||{},users:users.data||[],transactions:tx.data||[],listings:listings.data||[],offers:offers.data||[],disputes:disputes.data||[],auctions:auctions.data||[],tenders:tenders.data||[],initiatives:initiatives.data||[],logs:logs.data||[]};
+  if(can(40)){
+    const chest=await db.rpc("owner_daily_chest_overview");if(chest.error)throw chest.error;
+    chestAdmin=(chest.data||[])[0]||null;chestTabBtn.classList.remove("hidden")
+  }else{chestAdmin=null;chestTabBtn.classList.add("hidden")}
   renderAll();
  }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+e.message,"error")}
 }
 
-function renderAll(){renderOverview();renderUsers();renderTransactions();renderMarket();renderAuctions();renderTenders();renderInitiatives();renderAudit()}
+function renderAll(){renderOverview();renderUsers();renderTransactions();renderMarket();renderAuctions();renderTenders();renderInitiatives();renderAudit();renderChestAdmin()}
+
+function renderChestAdmin(){
+ if(!chestAdmin||!can(40))return;
+ chestAdminStats.innerHTML=[
+  ["Faixa atual",Safety.hc(chestAdmin.min_reward)+" — "+Safety.hc(chestAdmin.max_reward)],
+  ["Intervalo",chestAdmin.cooldown_hours+"h"],
+  ["Distribuído em 24h",Safety.hc(chestAdmin.distributed_24h||0)],
+  ["Total distribuído",Safety.hc(chestAdmin.total_distributed||0)]
+ ].map(x=>'<div class="card admin-kpi"><span class="muted">'+x[0]+'</span><div class="stat">'+x[1]+'</div></div>').join("");
+ chestMin.value=chestAdmin.min_reward;chestMax.value=chestAdmin.max_reward;chestCooldown.value=chestAdmin.cooldown_hours;chestEnabled.value=String(chestAdmin.enabled)
+}
+document.addEventListener("submit",async e=>{
+ if(e.target?.id!=="chestConfigForm")return;
+ e.preventDefault();
+ if(!can(40))return;
+ const min=Number(chestMin.value),max=Number(chestMax.value),cooldown=Number(chestCooldown.value),enabled=chestEnabled.value==="true";
+ if(max<min){alert("A recompensa máxima não pode ser menor que a mínima.");return}
+ if(!confirm("Salvar a nova configuração do Baú Diário?"))return;
+ try{
+  const{error}=await Safety.db().rpc("owner_update_daily_chest",{p_min_reward:min,p_max_reward:max,p_cooldown_hours:cooldown,p_enabled:enabled});
+  if(error)throw error;Safety.msg(msg,"✅ Configuração do Baú Diário atualizada.","success");await loadAll()
+ }catch(err){Safety.errorMsg(msg,err,"admin-daily-chest")}
+});
 
 function renderOverview(){
  const o=adminData.overview||{};
