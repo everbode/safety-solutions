@@ -1,0 +1,125 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Segurança da Conta | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script><style>
+.security-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.security-card{padding:22px}.security-card h2{margin:5px 0 8px}.security-kpi{font-size:28px;font-weight:900}.security-good{color:#9ce2bb}.security-warn{color:#f7d48d}.qr-wrap{display:grid;grid-template-columns:220px 1fr;gap:22px;align-items:center;margin-top:18px}.qr-box{width:220px;height:220px;padding:12px;background:#fff;border-radius:14px;display:grid;place-items:center}.qr-box img{max-width:100%;max-height:100%}.secret{word-break:break-all;font-family:monospace;background:#090d12;border:1px solid var(--line);border-radius:8px;padding:12px}.factor-list,.history-list{display:grid;gap:10px}.factor,.history-item{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0b1016}.history-item p{margin:4px 0}.device{word-break:break-word}.policy-box{border-color:#6d572a}.session-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}@media(max-width:800px){.security-grid,.qr-wrap{grid-template-columns:1fr}.qr-box{width:190px;height:190px}.security-card{padding:18px}}
+</style></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="perfil.html">Perfil</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header>
+<main class="container"><div class="page-title"><span class="eyebrow">SEGURANÇA DA CONTA</span><h1>🛡️ Proteção e sessões</h1><p class="muted">Gerencie sua verificação em duas etapas, sessão atual e histórico de segurança.</p></div><div id="msg" class="notice hidden"></div>
+
+<div class="security-grid">
+<section class="card security-card"><span class="gold">PROTEÇÃO</span><h2>Status da conta</h2><div id="securityStatus" class="security-kpi">Carregando...</div><p id="securityDetail" class="muted"></p><div id="securityTags" class="inline"></div></section>
+<section class="card security-card"><span class="gold">SESSÃO ATUAL</span><h2>Este dispositivo</h2><p><b>Último login:</b> <span id="lastLogin">—</span></p><p><b>Sessão expira:</b> <span id="sessionExpiry">—</span></p><p class="muted device" id="deviceInfo"></p><div class="session-actions"><button class="btn" id="revokeOthers">Encerrar outras sessões</button><button class="btn danger" id="logoutAll">Sair de todos os dispositivos</button></div></section>
+</div>
+
+<section class="section" style="padding-bottom:22px"><div class="section-head"><span class="gold">2FA / MFA</span><h2>Verificação em duas etapas</h2><p class="muted">Use um aplicativo autenticador compatível com códigos TOTP.</p></div>
+<div id="mfaCurrent" class="card security-card"></div>
+<div id="mfaEnroll" class="card security-card hidden" style="margin-top:16px"><span class="gold">CONFIGURAÇÃO</span><h2>Adicionar autenticador</h2><p>Escaneie o QR Code com seu aplicativo autenticador. Se preferir, use a chave manual.</p><div class="qr-wrap"><div class="qr-box"><img id="qrImage" alt="QR Code 2FA"></div><div><label>Chave manual</label><div id="mfaSecret" class="secret"></div><label style="margin-top:14px">Código de 6 dígitos</label><input id="enrollCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="000000"><div class="actions"><button class="btn primary" id="verifyEnroll">Ativar 2FA</button><button class="btn" id="cancelEnroll">Cancelar</button></div></div></div></div>
+</section>
+
+<section id="policySection" class="card security-card policy-box hidden"><span class="gold">POLÍTICA ADMINISTRATIVA</span><h2>Exigir 2FA da equipe</h2><p id="policyText" class="muted"></p><div id="ownerPolicyControls" class="hidden"><div class="inline"><select id="policyLevel" style="max-width:280px"><option value="30">Administradores + Owner (nível 30+)</option><option value="20">Moderadores + Admins + Owner (nível 20+)</option><option value="40">Somente Owner (nível 40)</option></select><button class="btn primary" id="enablePolicy">Ativar exigência</button><button class="btn danger hidden" id="disablePolicy">Desativar exigência</button></div><p class="muted">A ativação só é permitida em uma sessão já confirmada com 2FA, para evitar bloquear o proprietário fora da administração.</p></div></section>
+
+<section class="section"><div class="section-head"><span class="gold">HISTÓRICO</span><h2>Atividade de segurança</h2><p class="muted">Registros da sua própria conta. Códigos, senhas e tokens não são armazenados aqui.</p></div><div id="history" class="history-list"></div></section>
+</main>
+<script>
+let db,user,session,verifiedFactors=[],aal={},pendingFactor=null,roleLevel=0,policy={admin_mfa_required:false,mfa_min_level:30};
+const LEVEL={auditor:10,moderator:20,admin:30,owner:40};
+function eventLabel(v){return ({login_success:"Login concluído",mfa_enrolled:"2FA ativado",mfa_removed:"2FA removido",other_sessions_revoked:"Outras sessões encerradas",all_sessions_revoked:"Saída de todos os dispositivos",security_policy_changed:"Política administrativa alterada"})[v]||v}
+async function logSecurity(event,note=""){try{await db.rpc("record_my_security_event",{p_event_type:event,p_details:{user_agent:navigator.userAgent,page:location.pathname,note}})}catch{}}
+function qrSrc(v){const s=String(v||"").trim();return s.startsWith("data:")?s:"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s)}
+async function reloadSecurity(){
+ const [factorRes,aalRes,eventRes,policyRes,modRes,sessionRes]=await Promise.all([
+   db.auth.mfa.listFactors(),db.auth.mfa.getAuthenticatorAssuranceLevel(),
+   db.rpc("my_security_events",{p_limit:40}),db.rpc("security_policy"),
+   db.from("moderators").select("role").eq("user_id",user.id).maybeSingle(),
+   db.auth.getSession()
+ ]);
+ if(factorRes.error)throw factorRes.error;if(aalRes.error)throw aalRes.error;if(eventRes.error)throw eventRes.error;
+ verifiedFactors=[...(factorRes.data?.totp||[]),...(factorRes.data?.phone||[])].filter(x=>x.status==="verified");
+ aal=aalRes.data||{};session=sessionRes.data?.session||session;
+ roleLevel=LEVEL[modRes.data?.role]||0;policy=policyRes.data?.[0]||policy;
+ renderStatus();renderMfa();renderPolicy();renderHistory(eventRes.data||[])
+}
+function renderStatus(){
+ const confirmed=!!user.email_confirmed_at,mfaOn=verifiedFactors.length>0,aal2=aal.currentLevel==="aal2";
+ securityStatus.textContent=mfaOn?"Conta com 2FA":"Proteção básica";
+ securityStatus.className="security-kpi "+(mfaOn?"security-good":"security-warn");
+ securityDetail.textContent=mfaOn?(aal2?"Esta sessão já foi confirmada com o segundo fator.":"Sua conta tem 2FA, mas esta sessão ainda precisa ser confirmada."):"Ative o 2FA para adicionar uma segunda barreira além da senha.";
+ securityTags.innerHTML='<span class="tag '+(confirmed?"ok":"warn")+'">'+(confirmed?"E-mail confirmado":"E-mail pendente")+'</span><span class="tag '+(mfaOn?"ok":"warn")+'">'+(mfaOn?"2FA ativo":"2FA inativo")+'</span><span class="tag '+(aal2?"ok":"warn")+'">'+(aal2?"Sessão AAL2":"Sessão AAL1")+'</span>';
+ lastLogin.textContent=Safety.date(user.last_sign_in_at);
+ sessionExpiry.textContent=session?.expires_at?Safety.date(session.expires_at*1000):"—";
+ deviceInfo.textContent=navigator.userAgent
+}
+function renderMfa(){
+ if(!verifiedFactors.length){
+   mfaCurrent.innerHTML='<span class="tag warn">2FA inativo</span><h3>Adicione um aplicativo autenticador</h3><p class="muted">Depois de ativado, novos logins pedirão também um código temporário.</p><button class="btn primary" id="startEnroll">Ativar 2FA</button>';
+   document.getElementById("startEnroll").onclick=startEnrollment;return
+ }
+ const factors=verifiedFactors.map((f,i)=>'<div class="factor"><div class="inline"><span class="tag ok">verificado</span><b>'+(f.friendly_name||("Autenticador "+(i+1)))+'</b></div><p class="muted mini">Tipo: '+f.factor_type+'</p><button class="btn danger small" onclick="removeFactor(\''+f.id+'\')">Remover</button></div>').join("");
+ const needsVerify=aal.currentLevel!=="aal2";
+ mfaCurrent.innerHTML='<span class="tag ok">2FA ativo</span><h3>'+verifiedFactors.length+' fator(es) verificado(s)</h3>'+(needsVerify?'<div class="notice"><b>Confirme esta sessão</b><p class="muted">Digite um código do seu autenticador para elevar esta sessão para AAL2.</p><div class="inline"><input id="sessionCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="000000" style="max-width:180px"><button class="btn primary" id="verifySession">Confirmar sessão</button></div></div>':'<div class="notice success">✅ Esta sessão já está confirmada com 2FA.</div>')+'<div class="factor-list">'+factors+'</div><div class="actions"><button class="btn" id="addAnother">Adicionar outro autenticador</button></div>';
+ if(needsVerify)document.getElementById("verifySession").onclick=verifyCurrentSession;
+ document.getElementById("addAnother").onclick=startEnrollment
+}
+async function startEnrollment(){
+ try{
+   const r=await db.auth.mfa.enroll({factorType:"totp",friendlyName:"Safety Solutions"});
+   if(r.error)throw r.error;pendingFactor=r.data;
+   qrImage.src=qrSrc(r.data?.totp?.qr_code);mfaSecret.textContent=r.data?.totp?.secret||"";
+   enrollCode.value="";mfaEnroll.classList.remove("hidden");mfaEnroll.scrollIntoView({behavior:"smooth",block:"center"})
+ }catch(e){Safety.errorAlert(e,"mfa-enroll")}
+}
+verifyEnroll.onclick=async()=>{
+ const code=enrollCode.value.trim();if(!code)return;
+ try{
+   const r=await db.auth.mfa.challengeAndVerify({factorId:pendingFactor.id,code});if(r.error)throw r.error;
+   await logSecurity("mfa_enrolled","TOTP");
+   pendingFactor=null;mfaEnroll.classList.add("hidden");Safety.msg(msg,"✅ 2FA ativado. As outras sessões anteriores foram encerradas pelo provedor de autenticação.","success");await reloadSecurity()
+ }catch(e){Safety.errorAlert(e,"mfa-verify-enrollment")}
+};
+cancelEnroll.onclick=async()=>{try{if(pendingFactor?.id)await db.auth.mfa.unenroll({factorId:pendingFactor.id})}catch{}pendingFactor=null;mfaEnroll.classList.add("hidden")};
+async function verifyCurrentSession(){
+ const code=document.getElementById("sessionCode").value.trim();if(!code)return;
+ try{const r=await db.auth.mfa.challengeAndVerify({factorId:verifiedFactors[0].id,code});if(r.error)throw r.error;Safety.msg(msg,"✅ Sessão confirmada com 2FA.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"mfa-session-verify")}
+}
+async function removeFactor(id){
+ if(aal.currentLevel!=="aal2"){alert("Confirme esta sessão com 2FA antes de remover um fator.");return}
+ if(!confirm("Remover este autenticador da sua conta?"))return;
+ try{const r=await db.auth.mfa.unenroll({factorId:id});if(r.error)throw r.error;await db.auth.refreshSession();await logSecurity("mfa_removed","TOTP");Safety.msg(msg,"✅ Fator 2FA removido.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"mfa-unenroll")}
+}
+revokeOthers.onclick=async()=>{
+ if(!confirm("Encerrar todas as outras sessões e manter somente este dispositivo?"))return;
+ try{const r=await db.auth.signOut({scope:"others"});if(r.error)throw r.error;await logSecurity("other_sessions_revoked");Safety.msg(msg,"✅ As outras sessões foram revogadas. Este dispositivo continua conectado.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"revoke-other-sessions")}
+};
+logoutAll.onclick=async()=>{
+ if(!confirm("Sair da Safety Solutions em todos os dispositivos?"))return;
+ try{await logSecurity("all_sessions_revoked");const r=await db.auth.signOut({scope:"global"});if(r.error)throw r.error;location.href="login.html"}catch(e){Safety.errorAlert(e,"logout-all")}
+};
+function renderPolicy(){
+ if(!roleLevel){policySection.classList.add("hidden");return}
+ policySection.classList.remove("hidden");
+ const applies=roleLevel>=Number(policy.mfa_min_level||30);
+ policyText.textContent=policy.admin_mfa_required?("2FA obrigatório para níveis "+policy.mfa_min_level+" ou superiores. "+(applies?"Sua função está sujeita a esta regra.":"Sua função não está sujeita a esta regra.")):"A exigência de 2FA para a equipe administrativa está preparada, mas ainda não foi ativada.";
+ if(roleLevel>=40){
+   ownerPolicyControls.classList.remove("hidden");policyLevel.value=String(policy.mfa_min_level||30);
+   enablePolicy.classList.toggle("hidden",policy.admin_mfa_required);disablePolicy.classList.toggle("hidden",!policy.admin_mfa_required)
+ }
+}
+enablePolicy.onclick=async()=>{
+ if(aal.currentLevel!=="aal2"){alert("Confirme esta sessão com 2FA antes de ativar a exigência administrativa.");return}
+ if(!confirm("Ativar 2FA obrigatório para a equipe no nível selecionado?"))return;
+ try{const{error}=await db.rpc("owner_set_admin_mfa_requirement",{p_enabled:true,p_min_level:Number(policyLevel.value)});if(error)throw error;Safety.msg(msg,"✅ Exigência administrativa de 2FA ativada.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"enable-admin-mfa")}
+};
+disablePolicy.onclick=async()=>{
+ if(aal.currentLevel!=="aal2"){alert("Confirme esta sessão com 2FA antes de alterar a política.");return}
+ if(!confirm("Desativar a exigência administrativa de 2FA?"))return;
+ try{const{error}=await db.rpc("owner_set_admin_mfa_requirement",{p_enabled:false,p_min_level:Number(policyLevel.value)});if(error)throw error;Safety.msg(msg,"✅ Exigência administrativa de 2FA desativada.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"disable-admin-mfa")}
+};
+function renderHistory(rows){
+ history.innerHTML=rows.length?rows.map(e=>'<article class="history-item"><div class="inline"><b>'+eventLabel(e.event_type)+'</b><span class="muted right">'+Safety.date(e.created_at)+'</span></div>'+(e.details?.note?'<p class="muted">'+String(e.details.note).replace(/[<>]/g,"")+'</p>':'')+(e.details?.user_agent?'<p class="muted mini device">'+String(e.details.user_agent).replace(/[<>]/g,"")+'</p>':'')+'</article>').join(""):'<div class="card"><p class="muted">Nenhum evento de segurança registrado ainda.</p></div>'
+}
+async function init(){
+ try{
+   db=Safety.db();user=await Safety.requireUser();
+   const s=await db.auth.getSession();session=s.data?.session||null;
+   await reloadSecurity()
+ }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.errorMsg(msg,e,"security-page-load")}
+}
+init();
+</script></body></html>
