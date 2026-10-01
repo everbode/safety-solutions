@@ -46,3 +46,55 @@
   .topbar .navlinks>.btn,.topbar .navlinks>.nav-menu>summary{padding:7px 9px;font-size:12px}
   .nav-menu-pop,.nav-menu-right{position:fixed;left:12px;right:12px;top:auto;min-width:0;max-height:55vh;overflow:auto}
 }
+
+/* Patrocinios em destaque: grandes, em fluxo normal e sem interferir na navegacao */
+.sponsor-zone{margin:38px 0 46px;padding:22px 0}
+.sponsor-label{margin-bottom:12px;font-size:11px;letter-spacing:1.7px;color:#88939e}
+.sponsor-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;grid-auto-flow:dense}
+.sponsor-card{position:relative;overflow:hidden;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:22px;width:100%;padding:24px;background:linear-gradient(135deg,#10161d,#0b1016);border:1px solid #2b3540;border-radius:18px;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.sponsor-card:hover{transform:translateY(-2px);border-color:#6d5830;box-shadow:0 18px 38px rgba(0,0,0,.28)}
+.sponsor-media{display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:14px;background:#111923;border:1px solid #2b3540}
+.sponsor-logo,.sponsor-logo-placeholder{width:100%;height:100%;object-fit:cover;border:0;border-radius:0}
+.sponsor-logo-placeholder{display:grid;place-items:center;color:var(--gold);font-weight:900}
+.sponsor-copy{min-width:0}
+.sponsor-tier-badge{display:inline-flex;align-items:center;width:max-content;margin-bottom:8px;padding:5px 9px;border:1px solid #5b4a28;border-radius:999px;color:#f0c96a;background:#151209;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.sponsor-name{margin:0 0 7px;font-weight:900;line-height:1.08}
+.sponsor-headline{margin:0;color:#a9b3bd;line-height:1.45}
+.sponsor-cta{align-self:end;margin-left:0;color:#e6bd60;font-size:13px;font-weight:800;white-space:nowrap}
+.sponsor-supporter{grid-column:span 12;min-height:132px}
+.sponsor-supporter .sponsor-media{width:92px;height:92px}
+.sponsor-supporter .sponsor-name{font-size:20px}
+.sponsor-supporter .sponsor-headline{font-size:14px}
+.sponsor-highlight{grid-column:span 5;min-height:220px;grid-template-columns:120px minmax(0,1fr)}
+.sponsor-highlight .sponsor-media{width:120px;height:150px}
+.sponsor-highlight .sponsor-name{font-size:24px}
+.sponsor-highlight .sponsor-headline{font-size:15px}
+.sponsor-highlight .sponsor-cta{grid-column:2}
+.sponsor-premium{grid-column:span 7;min-height:220px;grid-template-columns:160px minmax(0,1fr)}
+.sponsor-premium .sponsor-media{width:160px;height:170px}
+.sponsor-premium .sponsor-name{font-size:28px}
+.sponsor-premium .sponsor-headline{font-size:16px;max-width:560px}
+.sponsor-premium .sponsor-cta{grid-column:2}
+.sponsor-master{grid-column:span 12;min-height:280px;grid-template-columns:minmax(260px,34%) minmax(0,1fr) auto;padding:30px}
+.sponsor-master::after{content:"";position:absolute;inset:auto -120px -140px auto;width:330px;height:330px;border-radius:50%;background:rgba(227,168,47,.08);pointer-events:none}
+.sponsor-master .sponsor-media{width:100%;height:220px}
+.sponsor-master .sponsor-name{font-size:clamp(30px,4vw,46px)}
+.sponsor-master .sponsor-headline{font-size:18px;max-width:650px}
+.sponsor-master .sponsor-tier-badge{font-size:11px;padding:6px 10px}
+.sponsor-master .sponsor-cta{font-size:14px}
+@media(max-width:900px){
+  .sponsor-highlight,.sponsor-premium,.sponsor-master,.sponsor-supporter{grid-column:span 12}
+  .sponsor-highlight,.sponsor-premium{grid-template-columns:130px minmax(0,1fr)}
+  .sponsor-master{grid-template-columns:190px minmax(0,1fr);min-height:230px}
+  .sponsor-master .sponsor-media{height:170px}
+  .sponsor-master .sponsor-cta{grid-column:2}
+}
+@media(max-width:640px){
+  .sponsor-zone{margin:28px 0 34px;padding:12px 0}
+  .sponsor-card,.sponsor-highlight,.sponsor-premium,.sponsor-master,.sponsor-supporter{grid-template-columns:1fr;gap:14px;min-height:0;padding:18px}
+  .sponsor-card .sponsor-media{width:100%;height:180px}
+  .sponsor-supporter .sponsor-media{height:130px}
+  .sponsor-card .sponsor-name{font-size:24px}
+  .sponsor-master .sponsor-name{font-size:30px}
+  .sponsor-card .sponsor-cta{display:inline-flex;grid-column:auto}
+}
