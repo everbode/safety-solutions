@@ -7,6 +7,53 @@
 
     <title>Safety Solutions</title>
 
+.cadastro-section {
+    background: #0b0f14;
+    display: none;
+}
+
+.cadastro-box {
+    max-width: 600px;
+    margin: auto;
+    background: #111820;
+    border: 1px solid #222d38;
+    border-radius: 14px;
+    padding: 35px;
+}
+
+#cadastroForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#cadastroForm label {
+    color: #c8d0d9;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+#cadastroForm input,
+#cadastroForm select {
+    width: 100%;
+    padding: 13px;
+    border-radius: 7px;
+    border: 1px solid #303944;
+    background: #0b0f14;
+    color: white;
+}
+
+#cadastroForm button {
+    border: none;
+    cursor: pointer;
+    margin-top: 18px;
+}
+
+#cadastroMensagem {
+    text-align: center;
+    margin-top: 10px;
+}
+ 
     <style>
         * {
             margin: 0;
@@ -266,6 +313,59 @@
     </nav>
 </header>
 
+ <section id="cadastro" class="cadastro-section">
+
+    <div class="cadastro-box">
+
+        <div class="section-title">
+            <h2>Criar conta</h2>
+            <p>Faça seu cadastro no Safety Solutions</p>
+        </div>
+
+        <form id="cadastroForm">
+
+            <label>Nome de usuário</label>
+            <input type="text" id="username" required>
+
+            <label>Link do perfil no jogo</label>
+            <input type="url" id="game_profile" required>
+
+            <label>Tipo de usuário</label>
+            <select id="user_type" required>
+                <option value="">Selecione</option>
+                <option value="industry">Indústria</option>
+                <option value="reseller">Revendedora</option>
+                <option value="financial">Financeira</option>
+                <option value="government">Representante governamental</option>
+            </select>
+
+            <label>Nome do grupo ou instituição</label>
+            <input type="text" id="institution" required>
+
+            <label>País no jogo</label>
+            <input type="text" id="country" required>
+
+            <label>Cargo / posição</label>
+            <input type="text" id="position" required>
+
+            <label>E-mail</label>
+            <input type="email" id="email" required>
+
+            <label>Senha</label>
+            <input type="password" id="password" minlength="6" required>
+
+            <button type="submit" class="button primary">
+                Criar conta
+            </button>
+
+            <p id="cadastroMensagem"></p>
+
+        </form>
+
+    </div>
+
+</section>
+ 
 <main>
 
     <section class="hero">
