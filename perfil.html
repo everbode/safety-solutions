@@ -1,1 +1,57 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Perfil | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="dashboard.html">Painel</a></div></header><main class="container"><div class="form-card panel"><span class="eyebrow">MINHA CONTA</span><h1>👤 Perfil</h1><div id="msg" class="notice hidden"></div><form id="form" class="form-grid"><div><label>Usuário</label><input id="username" required></div><div><label>Tipo</label><input id="user_type" disabled></div><div class="full"><label>Perfil no jogo</label><input id="game_profile" type="url" required></div><div><label>Instituição</label><input id="institution" required></div><div><label>País</label><input id="country" required></div><div><label>Cargo</label><input id="position" required></div><div><label>Status da conta</label><input id="account_status" disabled></div><div class="full"><button class="btn primary" id="save">Salvar alterações</button></div></form></div></main><script>let user;async function init(){try{const db=Safety.db();user=await Safety.requireUser();const{data:p,error}=await db.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;username.value=p.username||"";user_type.value=p.user_type||"";game_profile.value=p.game_profile||"";institution.value=p.institution||"";country.value=p.country||"";position.value=p.position||"";account_status.value=p.account_status||""}catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg)}}form.addEventListener("submit",async e=>{e.preventDefault();try{const{error}=await Safety.db().from("profiles").update({username:username.value.trim(),game_profile:game_profile.value.trim(),institution:institution.value.trim(),country:country.value.trim(),position:position.value.trim()}).eq("id",user.id);if(error)throw error;Safety.msg(msg,"✅ Perfil atualizado.","success")}catch(e){Safety.msg(msg,"❌ "+e.message,"error")}});init();</script></body></html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Perfil | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><style>.danger-zone{margin-top:28px;border:1px solid #6d3434;background:#170d0d;border-radius:12px;padding:20px}.danger-zone h2{margin-top:0;color:#ffb1b1}</style></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="dashboard.html">Painel</a></div></header><main class="container"><div class="form-card panel"><span class="eyebrow">MINHA CONTA</span><h1>👤 Perfil</h1><div id="msg" class="notice hidden"></div><form id="form" class="form-grid"><div><label>Usuário</label><input id="username" required></div><div><label>Tipo</label><input id="user_type" disabled></div><div class="full"><label>Perfil no jogo</label><input id="game_profile" type="url" required></div><div class="full"><label id="entity_label">Instituição / país</label><input id="entity_name" required></div><div class="full"><label>Cargo</label><input id="position" required></div><div><label>Status da conta</label><input id="account_status" disabled></div><div class="full"><button class="btn primary" id="save">Salvar alterações</button></div></form><div id="protectionNotice" class="notice hidden"></div><div class="danger-zone"><h2>⚠️ Exclusão da conta</h2><p class="muted">A exclusão só pode ser solicitada a partir da própria conta autenticada. Para evitar exclusão acidental, será necessário digitar exatamente o seu nome de usuário.</p><button class="btn danger" id="deleteAccount" type="button">Excluir minha conta</button></div></div></main><script>
+let user,currentProfile;
+function setupEntity(p){
+ const government=p.user_type==="government";
+ entity_label.textContent=government?"Nome do país representado":p.user_type==="financial"?"Nome da instituição financeira":p.user_type==="industry"?"Nome da fábrica / indústria":p.user_type==="reseller"?"Nome da revendedora":"Instituição / grupo";
+ entity_name.value=(government?p.country:p.institution)||"";
+}
+async function init(){
+ try{
+  const db=Safety.db();user=await Safety.requireUser();
+  const[{data:p,error},{data:protectedFlag}]=await Promise.all([
+   db.from("profiles").select("*").eq("id",user.id).single(),
+   db.rpc("my_account_self_delete_only")
+  ]);
+  if(error)throw error;
+  currentProfile=p;
+  username.value=p.username||"";
+  user_type.value=p.user_type||"";
+  game_profile.value=p.game_profile||"";
+  position.value=p.position||"";
+  account_status.value=p.account_status||"";
+  setupEntity(p);
+  if(protectedFlag===true){
+   protectionNotice.textContent="🔒 Conta protegida: administradores e outros moderadores não podem excluir esta conta. Somente você, autenticado nela, pode iniciar a exclusão.";
+   protectionNotice.classList.remove("hidden");
+  }
+ }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else Safety.msg(msg,"❌ "+e.message,"error")}
+}
+form.addEventListener("submit",async e=>{
+ e.preventDefault();
+ try{
+  const entity=entity_name.value.trim();
+  const government=currentProfile.user_type==="government";
+  const payload={username:username.value.trim(),game_profile:game_profile.value.trim(),institution:government?null:entity,country:government?entity:null,position:position.value.trim()};
+  const{error}=await Safety.db().from("profiles").update(payload).eq("id",user.id);
+  if(error)throw error;
+  currentProfile={...currentProfile,...payload};
+  Safety.msg(msg,"✅ Perfil atualizado.","success")
+ }catch(e){Safety.msg(msg,"❌ "+e.message,"error")}
+});
+deleteAccount.addEventListener("click",async()=>{
+ const expected=username.value.trim();
+ const confirmation=prompt("Para excluir sua conta, digite exatamente o nome de usuário:\n\n"+expected);
+ if(confirmation===null)return;
+ if(confirmation!==expected)return alert("Nome de usuário diferente. A conta não foi excluída.");
+ if(!confirm("Esta ação é permanente. Confirmar exclusão da sua própria conta?"))return;
+ try{
+  const{error}=await Safety.db().rpc("delete_my_account",{p_confirmation:confirmation});
+  if(error)throw error;
+  alert("Conta excluída.");
+  location.href="index.html";
+ }catch(e){
+  alert("Não foi possível excluir a conta: "+e.message);
+ }
+});
+init();
+</script></body></html>
