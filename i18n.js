@@ -493,6 +493,10 @@ Object.assign(entries,{
 "Erros":["Errors","Errores","Hatalar"],
 "Safety Alert Admin":["Safety Alert Admin","Admin Safety Alert","Safety Alert Yönetimi"]
 });
+Object.assign(entries,{
+"Falha na interface da plataforma":["Platform interface failure","Fallo en la interfaz de la plataforma","Platform arayüz hatası"],
+"Atualize a página. Se o erro continuar, envie o código e o protocolo à moderação.":["Refresh the page. If the error continues, send the code and protocol to moderation.","Actualiza la página. Si el error continúa, envía el código y el protocolo a moderación.","Sayfayı yenileyin. Hata devam ederse kodu ve protokolü moderasyona gönderin."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
