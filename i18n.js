@@ -479,6 +479,12 @@ Object.assign(entries,{
 "📄 Contratos":["📄 Contracts","📄 Contratos","📄 Sözleşmeler"],
 "Acordos recorrentes com calendário e custódia por parcela.":["Recurring agreements with schedules and escrow per installment.","Acuerdos recurrentes con calendario y custodia por cuota.","Takvimli ve taksit başına emanetli düzenli anlaşmalar."]
 });
+Object.assign(entries,{
+"Erro na rede comercial":["Commercial network error","Error en la red comercial","Ticari ağ hatası"],
+"Atualize a página e confira se a parceria ainda está disponível. Se persistir, envie o protocolo à moderação.":["Refresh the page and check whether the partnership is still available. If it persists, send the protocol to moderation.","Actualiza la página y comprueba si la alianza sigue disponible. Si persiste, envía el protocolo a moderación.","Sayfayı yenileyin ve ortaklığın hâlâ kullanılabilir olup olmadığını kontrol edin. Sorun sürerse protokolü moderasyona gönderin."],
+"Erro no contrato comercial":["Commercial contract error","Error en el contrato comercial","Ticari sözleşme hatası"],
+"Confira o status do contrato ou da parcela e tente novamente. Se persistir, envie o protocolo à moderação.":["Check the contract or installment status and try again. If it persists, send the protocol to moderation.","Comprueba el estado del contrato o de la cuota y vuelve a intentarlo. Si persiste, envía el protocolo a moderación.","Sözleşmenin veya taksitin durumunu kontrol edip tekrar deneyin. Sorun sürerse protokolü moderasyona gönderin."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
