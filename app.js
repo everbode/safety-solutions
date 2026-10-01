@@ -39,6 +39,7 @@ window.Safety={
     "SS-DB-002":{title:"Incompatibilidade interna de dados",action:"Não repita várias vezes a operação. Atualize a página e envie este código à moderação para correção."},
     "SS-NET-001":{title:"Falha de conexão",action:"Confira sua internet, aguarde alguns segundos e tente novamente."},
     "SS-SYS-001":{title:"Configuração da plataforma incompleta",action:"Avise a administração da Safety Solutions. Este problema precisa ser corrigido na configuração do site."},
+    "SS-UI-001":{title:"Falha na interface da plataforma",action:"Atualize a página. Se o erro continuar, envie o código e o protocolo à moderação."},
     "SS-UNK-001":{title:"Erro não identificado",action:"Atualize a página e tente novamente. Se o erro continuar, envie o código e o protocolo à moderação."}
   },
 
@@ -68,6 +69,7 @@ window.Safety={
     else if(s.includes("partnership")||s.includes("partner profile"))code="SS-NET-002";
     else if(s.includes("contract")||s.includes("counterparty")||s.includes("cycle unavailable"))code="SS-CTR-001";
     else if(s.includes("sponsor"))code="SS-SPN-001";
+    else if(s.includes("is not defined")||s.includes("cannot read properties")||s.includes("undefined is not")||s.includes("null is not an object"))code="SS-UI-001";
     else if(s.includes("pgrst")||s.includes("database")||s.includes("sql")||s.includes("relation")||s.includes("column"))code="SS-DB-001";
     return {code,raw}
   },
