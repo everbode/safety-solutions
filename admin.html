@@ -108,9 +108,9 @@ function renderOverview(){
  ];
  overviewCards.innerHTML=cards.map(x=>'<div class="card admin-kpi"><span class="muted">'+x[0]+'</span><div class="stat">'+x[1]+'</div></div>').join("");
  const p=adminData.users.filter(x=>x.account_status==="awaiting_verification");
- pendingAccounts.innerHTML=p.length?p.map(x=>'<div class="card compact"><div class="inline">'+tag(x.account_status)+'<b>'+esc(x.username)+'</b></div><p class="muted">'+esc(x.user_type)+' • '+esc(x.institution||x.country||"—")+'</p><div class="actions"><button class="btn primary small" onclick="setAccount(\''+x.id+'\',\'active\')">Aprovar</button><button class="btn danger small" onclick="setAccount(\''+x.id+'\',\'rejected\')">Rejeitar</button></div></div>').join(""):empty("Nenhuma conta aguardando verificação.");
- const c=adminData.transactions.filter(x=>x.status==="custody");
- custodyTx.innerHTML=c.length?c.slice(0,8).map(txCard).join(""):empty("Nenhuma transação em custódia.");
+ pendingAccounts.innerHTML=p.length?p.map(x=>'<div class="card compact"><div class="inline">'+tag(x.account_status)+'<b>'+esc(x.username)+'</b></div><p class="muted">'+esc(x.user_type)+' • '+esc(x.institution||x.country||"—")+'</p>'+(can(20)?'<div class="actions"><button class="btn primary small" onclick="setAccount(\''+x.id+'\',\'active\')">Aprovar</button><button class="btn danger small" onclick="setAccount(\''+x.id+'\',\'rejected\')">Rejeitar</button></div>':'<p class="muted mini">Somente leitura neste nível.</p>')+'</div>').join(""):empty("Nenhuma conta aguardando verificação.");
+ const held=adminData.transactions.filter(x=>x.status==="custody");
+ custodyTx.innerHTML=held.length?held.slice(0,8).map(txCard).join(""):empty("Nenhuma transação em custódia.");
  const d=adminData.disputes.filter(x=>["open","reviewing"].includes(x.status));
  openDisputes.innerHTML=d.length?d.slice(0,8).map(disputeCard).join(""):empty("Nenhuma disputa aberta.");
  recentEvents.innerHTML=adminData.logs.length?adminData.logs.slice(0,10).map(x=>'<div class="card compact"><b>'+esc(x.action)+'</b><p class="muted">'+Safety.date(x.created_at)+' • '+esc(x.entity_type)+' #'+esc(x.entity_id||"—")+'</p></div>').join(""):empty("Nenhum evento registrado.");
@@ -168,7 +168,21 @@ userSearch.oninput=renderUsers;userStatusFilter.onchange=renderUsers;txSearch.on
 
 async function setAccount(id,status){if(!confirm("Alterar status da conta para "+status+"?"))return;try{const{error}=await Safety.db().rpc("moderator_set_account_status",{p_user_id:id,p_status:status});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
 async function adjustWallet(id,name){const raw=prompt("Ajuste de HC para "+name+". Use número positivo para adicionar ou negativo para remover:");if(raw===null)return;const delta=Number(String(raw).replace(/\s/g,"").replace(",", "."));if(!Number.isFinite(delta)||delta===0)return alert("Valor inválido.");const reason=prompt("Motivo obrigatório do ajuste:");if(!reason)return;try{const{data,error}=await Safety.db().rpc("moderator_adjust_wallet",{p_user_id:id,p_delta:Math.trunc(delta),p_reason:reason});if(error)throw error;alert("Novo saldo: "+Safety.hc(data));await loadAll()}catch(e){alert("Erro: "+e.message)}}
-async function setRole(id,value){const reason=prompt(value?"Motivo para conceder acesso de moderador:":"Motivo para remover acesso de moderador:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_set_role",{p_user_id:id,p_is_moderator:value,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function setRoleLevel(id,name,current){
+ if(!can(40))return alert("Apenas o Proprietário pode alterar os níveis da equipe.");
+ const role=prompt("Defina o nível de "+name+"\n\nOpções:\nnone = remover da equipe\nauditor = somente leitura\nmoderator = moderação operacional\nadmin = controles financeiros e custódia\nowner = controle máximo\n\nAtual: "+current,current);
+ if(role===null)return;
+ const value=role.trim().toLowerCase();
+ if(!["none","auditor","moderator","admin","owner"].includes(value))return alert("Nível inválido.");
+ const reason=prompt("Motivo obrigatório para a alteração:");
+ if(!reason)return;
+ if(!confirm("Confirmar nível "+value+" para "+name+"?"))return;
+ try{
+   const{error}=await Safety.db().rpc("moderator_set_role_level",{p_user_id:id,p_role:value,p_reason:reason});
+   if(error)throw error;
+   await loadAll();
+ }catch(e){alert("Erro: "+e.message)}
+}
 async function txAction(id,action){const labels={release_seller:"liberar o valor ao vendedor",refund_buyer:"reembolsar o comprador",mark_disputed:"marcar a transação como disputa"};const reason=prompt("Justificativa para "+labels[action]+":");if(!reason)return;if(!confirm("Confirmar ação administrativa?"))return;try{const{error}=await Safety.db().rpc("moderator_transaction_action",{p_transaction_id:id,p_action:action,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
 async function resolveDispute(id,to){const reason=prompt("Fundamentação da decisão:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_resolve_dispute",{p_dispute_id:id,p_resolution:reason,p_pay_to:to});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
 async function cancelListing(id){const reason=prompt("Motivo do cancelamento do anúncio:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_cancel_listing",{p_listing_id:id,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
