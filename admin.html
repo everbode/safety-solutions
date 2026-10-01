@@ -1,1 +1,169 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Moderação | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="admin-alertas.html">Safety Alert</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header><main class="container"><div class="page-title"><span class="eyebrow">ADMINISTRAÇÃO</span><h1>🛡️ Painel de moderação</h1><p class="muted">Verificações governamentais, custódias, disputas e trilha de auditoria.</p></div><div id="msg" class="notice hidden"></div><section class="section" style="padding-top:20px"><div class="section-head"><span class="gold">VERIFICAÇÃO</span><h2>Contas aguardando verificação</h2></div><div id="gov" class="grid cols2"></div></section><section class="section alt" style="margin-inline:calc(50% - 50vw);padding-inline:24px"><div class="container"><div class="section-head"><span class="gold">CUSTÓDIA</span><h2>Transações aguardando liberação</h2></div><div id="custody" class="grid cols2"></div></div></section><section class="section"><div class="section-head"><span class="gold">DISPUTAS</span><h2>Casos em análise</h2></div><div id="disputes" class="grid cols2"></div></section><section class="section alt" style="margin-inline:calc(50% - 50vw);padding-inline:24px"><div class="container"><div class="section-head"><span class="gold">AUDITORIA</span><h2>Últimas ações</h2></div><div class="card table-wrap"><table class="table"><thead><tr><th>Data</th><th>Ação</th><th>Entidade</th><th>ID</th></tr></thead><tbody id="logs"></tbody></table></div></div></section></main><script>async function load(){try{const db=Safety.db(),u=await Safety.requireUser();const{data:mod}=await db.from("moderators").select("user_id").eq("user_id",u.id).maybeSingle();if(!mod){Safety.msg(msg,"⛔ Esta conta não possui permissão de moderador.","error");document.querySelectorAll("section").forEach(x=>x.classList.add("hidden"));return}const[{data:g},{data:t},{data:d},{data:a}]=await Promise.all([db.from("profiles").select("id,username,institution,country,position,account_status").eq("account_status","awaiting_verification"),db.from("transactions").select("*").eq("status","custody").order("created_at",{ascending:true}),db.from("disputes").select("*").in("status",["open","reviewing"]).order("created_at",{ascending:true}),db.from("audit_logs").select("*").order("created_at",{ascending:false}).limit(30)]);gov.innerHTML=(g||[]).length?g.map(x=>'<article class="card"><span class="tag warn">aguardando verificação</span><h3>'+x.username+'</h3><p class="muted">'+x.position+' • '+x.institution+' • '+x.country+'</p><div class="actions"><button class="btn primary small" onclick="account(\''+x.id+'\',\'active\')">Aprovar</button><button class="btn danger small" onclick="account(\''+x.id+'\',\'rejected\')">Rejeitar</button></div></article>').join(""):'<div class="card"><p class="muted">Nenhuma conta aguardando verificação.</p></div>';custody.innerHTML=(t||[]).length?t.map(x=>'<article class="card"><span class="tag">custódia</span><h3>Transação #'+x.id+'</h3><div class="stat gold">'+Safety.hc(x.amount)+'</div><p class="muted">Criada em '+Safety.date(x.created_at)+'</p><button class="btn primary small" onclick="releaseTx('+x.id+')">Liberar ao vendedor</button></article>').join(""):'<div class="card"><p class="muted">Nenhuma custódia pendente.</p></div>';disputes.innerHTML=(d||[]).length?d.map(x=>'<article class="card"><span class="tag danger">'+x.status+'</span><h3>Disputa #'+x.id+' • Transação #'+x.transaction_id+'</h3><p>'+x.reason+'</p><div class="actions"><button class="btn primary small" onclick="resolve('+x.id+',\'seller\')">Pagar vendedor</button><button class="btn small" onclick="resolve('+x.id+',\'buyer\')">Reembolsar comprador</button></div></article>').join(""):'<div class="card"><p class="muted">Nenhuma disputa aberta.</p></div>';logs.innerHTML=(a||[]).map(x=>'<tr><td>'+Safety.date(x.created_at)+'</td><td>'+x.action+'</td><td>'+x.entity_type+'</td><td>'+x.entity_id+'</td></tr>').join("")}catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+e.message,"error")}}async function account(id,status){try{const{error}=await Safety.db().rpc("moderator_set_account_status",{p_user_id:id,p_status:status});if(error)throw error;load()}catch(e){alert("Erro: "+e.message)}}async function releaseTx(id){if(!confirm("Liberar o valor em custódia ao vendedor?"))return;try{const{error}=await Safety.db().rpc("moderator_release_transaction",{p_transaction_id:id});if(error)throw error;load()}catch(e){alert("Erro: "+e.message)}}async function resolve(id,to){const note=prompt("Registre a fundamentação da decisão:");if(!note)return;try{const{error}=await Safety.db().rpc("moderator_resolve_dispute",{p_dispute_id:id,p_resolution:note,p_pay_to:to});if(error)throw error;load()}catch(e){alert("Erro: "+e.message)}}load();</script></body></html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Central Administrativa | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><style>
+.admin-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 30px}.admin-tabs button.active{background:#e3a82f;color:#080c11;border-color:#e3a82f}.admin-section{display:none}.admin-section.active{display:block}.admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.admin-kpi{padding:18px}.admin-kpi .stat{font-size:26px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}.toolbar input,.toolbar select{max-width:320px}.compact p{margin:7px 0}.danger-zone{border-color:#6d3434}.code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word}.admin-list{display:grid;gap:12px}.admin-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:18px;background:#10161d;border:1px solid #252e38;border-radius:12px}.admin-row .actions{margin-top:0;justify-content:flex-end}.mini{font-size:12px}.pill-row{display:flex;gap:7px;flex-wrap:wrap}.search-wide{max-width:460px!important}@media(max-width:900px){.admin-grid{grid-template-columns:repeat(2,1fr)}.admin-row{grid-template-columns:1fr}.admin-row .actions{justify-content:flex-start}}@media(max-width:560px){.admin-grid{grid-template-columns:1fr}}</style></head><body>
+<header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="admin-alertas.html">Safety Alert</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header>
+<main class="container">
+<div class="page-title"><span class="eyebrow">CENTRAL ADMINISTRATIVA</span><h1>🛡️ Controle da plataforma</h1><p class="muted">Acompanhe usuários, créditos, anúncios, negociações, custódias, disputas, leilões, licitações, investimentos e trilha de auditoria.</p></div>
+<div id="msg" class="notice hidden"></div>
+<div id="adminContent" class="hidden">
+<div id="overviewCards" class="admin-grid"></div>
+<div class="admin-tabs">
+<button class="btn small active" data-tab="overview">Visão geral</button>
+<button class="btn small" data-tab="users">Usuários</button>
+<button class="btn small" data-tab="transactions">Transações</button>
+<button class="btn small" data-tab="market">Mercado</button>
+<button class="btn small" data-tab="auctions">Leilões</button>
+<button class="btn small" data-tab="tenders">Licitações</button>
+<button class="btn small" data-tab="invest">Investimentos</button>
+<button class="btn small" data-tab="audit">Auditoria</button>
+<button class="btn primary small" onclick="loadAll()">↻ Atualizar tudo</button>
+</div>
+
+<section id="tab-overview" class="admin-section active">
+<div class="grid cols2">
+<div class="panel"><div class="section-head"><span class="gold">VERIFICAÇÃO</span><h2>Contas pendentes</h2></div><div id="pendingAccounts" class="admin-list"></div></div>
+<div class="panel"><div class="section-head"><span class="gold">CUSTÓDIA</span><h2>Valores retidos</h2></div><div id="custodyTx" class="admin-list"></div></div>
+<div class="panel"><div class="section-head"><span class="gold">DISPUTAS</span><h2>Casos abertos</h2></div><div id="openDisputes" class="admin-list"></div></div>
+<div class="panel"><div class="section-head"><span class="gold">ATIVIDADE</span><h2>Últimos acontecimentos</h2></div><div id="recentEvents" class="admin-list"></div></div>
+</div>
+</section>
+
+<section id="tab-users" class="admin-section">
+<div class="section-head"><span class="gold">CONTAS E HUBCREDIT</span><h2>Usuários da plataforma</h2></div>
+<div class="toolbar"><input id="userSearch" class="search-wide" placeholder="Buscar usuário, instituição, país ou tipo..."><select id="userStatusFilter"><option value="">Todos os status</option><option value="active">Ativos</option><option value="awaiting_verification">Aguardando verificação</option><option value="suspended">Suspensos</option><option value="rejected">Rejeitados</option></select></div>
+<div id="usersList" class="admin-list"></div>
+</section>
+
+<section id="tab-transactions" class="admin-section">
+<div class="section-head"><span class="gold">FLUXO FINANCEIRO</span><h2>Todas as transações</h2><p class="muted">Ações que movimentam valores exigem confirmação e justificativa.</p></div>
+<div class="toolbar"><input id="txSearch" class="search-wide" placeholder="Buscar por ID, usuário, produto ou origem..."><select id="txStatusFilter"><option value="">Todos os status</option><option value="custody">Custódia</option><option value="disputed">Em disputa</option><option value="completed">Concluídas</option><option value="resolved">Resolvidas</option><option value="cancelled">Canceladas</option></select></div>
+<div id="transactionsList" class="admin-list"></div>
+</section>
+
+<section id="tab-market" class="admin-section">
+<div class="section-head"><span class="gold">MERCADO</span><h2>Anúncios e propostas</h2></div>
+<h3>📦 Anúncios</h3><div id="listingsList" class="admin-list"></div>
+<div class="divider"></div>
+<h3>🤝 Propostas e contrapropostas</h3><div id="offersList" class="admin-list"></div>
+</section>
+
+<section id="tab-auctions" class="admin-section">
+<div class="section-head"><span class="gold">LEILÕES</span><h2>Controle de leilões</h2></div><div id="auctionsList" class="admin-list"></div>
+</section>
+
+<section id="tab-tenders" class="admin-section">
+<div class="section-head"><span class="gold">LICITAÇÕES</span><h2>Controle de licitações</h2></div><div id="tendersList" class="admin-list"></div>
+</section>
+
+<section id="tab-invest" class="admin-section">
+<div class="section-head"><span class="gold">SAFETY INVEST</span><h2>Controle de iniciativas</h2><p class="muted">Alterar o status de uma iniciativa não desfaz automaticamente aportes já registrados.</p></div><div id="initiativesList" class="admin-list"></div>
+</section>
+
+<section id="tab-audit" class="admin-section">
+<div class="section-head"><span class="gold">TRILHA DE AUDITORIA</span><h2>Eventos registrados</h2></div>
+<div class="toolbar"><input id="auditSearch" class="search-wide" placeholder="Buscar ação, entidade, ID ou detalhe..."></div>
+<div class="card table-wrap"><table class="table"><thead><tr><th>Data</th><th>Ator</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Detalhes</th></tr></thead><tbody id="auditRows"></tbody></table></div>
+</section>
+</div>
+</main>
+<script>
+let adminData={overview:null,users:[],transactions:[],listings:[],offers:[],disputes:[],auctions:[],tenders:[],initiatives:[],logs:[]};
+
+document.querySelectorAll(".admin-tabs button[data-tab]").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll(".admin-tabs button[data-tab]").forEach(x=>x.classList.remove("active"));
+ btn.classList.add("active");
+ document.querySelectorAll(".admin-section").forEach(x=>x.classList.remove("active"));
+ document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+}));
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function empty(text){return '<div class="card"><p class="muted">'+text+'</p></div>'}
+function tag(status){const c=status==="active"||status==="completed"||status==="resolved"?"ok":status==="awaiting_verification"||status==="custody"||status==="negotiating"||status==="open"?"warn":status==="suspended"||status==="rejected"||status==="disputed"||status==="cancelled"?"danger":"";return '<span class="tag '+c+'">'+esc(status)+'</span>'}
+
+async function loadAll(){
+ try{
+  const db=Safety.db(),u=await Safety.requireUser();
+  const{data:mod}=await db.from("moderators").select("user_id").eq("user_id",u.id).maybeSingle();
+  if(!mod){Safety.msg(msg,"⛔ Esta conta não possui permissão administrativa.","error");return}
+  adminContent.classList.remove("hidden");
+  const [overview,users,tx,listings,offers,disputes,auctions,tenders,initiatives,logs]=await Promise.all([
+   db.rpc("admin_overview"),db.rpc("admin_users_feed"),db.rpc("admin_transactions_feed"),
+   db.rpc("admin_listings_feed"),db.rpc("admin_offers_feed"),db.rpc("admin_disputes_feed"),
+   db.rpc("admin_auctions_feed"),db.rpc("admin_tenders_feed"),db.rpc("admin_initiatives_feed"),
+   db.from("audit_logs").select("*").order("created_at",{ascending:false}).limit(250)
+  ]);
+  for(const r of [overview,users,tx,listings,offers,disputes,auctions,tenders,initiatives,logs]) if(r.error)throw r.error;
+  adminData={overview:(overview.data||[])[0]||{},users:users.data||[],transactions:tx.data||[],listings:listings.data||[],offers:offers.data||[],disputes:disputes.data||[],auctions:auctions.data||[],tenders:tenders.data||[],initiatives:initiatives.data||[],logs:logs.data||[]};
+  renderAll();
+ }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+e.message,"error")}
+}
+
+function renderAll(){renderOverview();renderUsers();renderTransactions();renderMarket();renderAuctions();renderTenders();renderInitiatives();renderAudit()}
+
+function renderOverview(){
+ const o=adminData.overview||{};
+ const cards=[
+  ["👥 Usuários",o.users||0],["🕒 Pendentes",o.pending_accounts||0],["🛒 Anúncios ativos",o.active_listings||0],["🔐 Em custódia",o.custody_transactions||0],
+  ["⚖️ Disputas",o.open_disputes||0],["🔨 Leilões",o.open_auctions||0],["📑 Licitações",o.open_tenders||0],["💰 HC no sistema",Safety.hc(o.total_hc||0)]
+ ];
+ overviewCards.innerHTML=cards.map(x=>'<div class="card admin-kpi"><span class="muted">'+x[0]+'</span><div class="stat">'+x[1]+'</div></div>').join("");
+ const p=adminData.users.filter(x=>x.account_status==="awaiting_verification");
+ pendingAccounts.innerHTML=p.length?p.map(x=>'<div class="card compact"><div class="inline">'+tag(x.account_status)+'<b>'+esc(x.username)+'</b></div><p class="muted">'+esc(x.user_type)+' • '+esc(x.institution||x.country||"—")+'</p><div class="actions"><button class="btn primary small" onclick="setAccount(\''+x.id+'\',\'active\')">Aprovar</button><button class="btn danger small" onclick="setAccount(\''+x.id+'\',\'rejected\')">Rejeitar</button></div></div>').join(""):empty("Nenhuma conta aguardando verificação.");
+ const c=adminData.transactions.filter(x=>x.status==="custody");
+ custodyTx.innerHTML=c.length?c.slice(0,8).map(txCard).join(""):empty("Nenhuma transação em custódia.");
+ const d=adminData.disputes.filter(x=>["open","reviewing"].includes(x.status));
+ openDisputes.innerHTML=d.length?d.slice(0,8).map(disputeCard).join(""):empty("Nenhuma disputa aberta.");
+ recentEvents.innerHTML=adminData.logs.length?adminData.logs.slice(0,10).map(x=>'<div class="card compact"><b>'+esc(x.action)+'</b><p class="muted">'+Safety.date(x.created_at)+' • '+esc(x.entity_type)+' #'+esc(x.entity_id||"—")+'</p></div>').join(""):empty("Nenhum evento registrado.");
+}
+
+function renderUsers(){
+ const q=(userSearch.value||"").toLowerCase(),sf=userStatusFilter.value;
+ const rows=adminData.users.filter(x=>(!sf||x.account_status===sf)&&(!q||[x.username,x.user_type,x.institution,x.country,x.job_position].join(" ").toLowerCase().includes(q)));
+ usersList.innerHTML=rows.length?rows.map(x=>'<div class="admin-row"><div><div class="inline"><b>'+esc(x.username)+'</b>'+tag(x.account_status)+(x.is_moderator?'<span class="tag ok">moderador</span>':'')+'</div><p class="muted mini">'+esc(x.user_type)+' • '+esc(x.institution||x.country||"—")+' • '+esc(x.job_position||"—")+'</p></div><div><b class="gold">'+Safety.hc(x.balance)+'</b><p class="muted mini">ID: '+esc(x.id)+'</p></div><div class="actions"><button class="btn small" onclick="adjustWallet(\''+x.id+'\',\''+esc(x.username).replace(/'/g,"\\'")+'\')">💰 Ajustar HC</button><button class="btn small" onclick="setAccount(\''+x.id+'\',\'active\')">Ativar</button><button class="btn small" onclick="setAccount(\''+x.id+'\',\'awaiting_verification\')">Pendente</button><button class="btn danger small" onclick="setAccount(\''+x.id+'\',\'suspended\')">Suspender</button><button class="btn danger small" onclick="setAccount(\''+x.id+'\',\'rejected\')">Rejeitar</button><button class="btn small" onclick="setRole(\''+x.id+'\','+(!x.is_moderator)+')">'+(x.is_moderator?"Remover mod":"Tornar mod")+'</button></div></div>').join(""):empty("Nenhum usuário encontrado.");
+}
+
+function txCard(x){
+ const canMove=["custody","disputed"].includes(x.status);
+ return '<div class="card compact"><div class="inline">'+tag(x.status)+'<b>Transação #'+x.id+'</b></div><p>'+esc(x.product||"—")+' • '+Safety.num(x.quantity||0)+' un. • <b class="gold">'+Safety.hc(x.amount)+'</b></p><p class="muted">Comprador: '+esc(x.buyer_username)+' → Vendedor: '+esc(x.seller_username)+'<br>Origem: '+esc(x.source_type||"market")+(x.source_id?' #'+x.source_id:'')+' • '+Safety.date(x.created_at)+'</p>'+(canMove?'<div class="actions"><button class="btn primary small" onclick="txAction('+x.id+',\'release_seller\')">Liberar ao vendedor</button><button class="btn small" onclick="txAction('+x.id+',\'refund_buyer\')">Reembolsar comprador</button>'+(x.status==="custody"?'<button class="btn danger small" onclick="txAction('+x.id+',\'mark_disputed\')">Marcar disputa</button>':'')+'</div>':'')+'</div>';
+}
+function renderTransactions(){
+ const q=(txSearch.value||"").toLowerCase(),sf=txStatusFilter.value;
+ const rows=adminData.transactions.filter(x=>(!sf||x.status===sf)&&(!q||[x.id,x.buyer_username,x.seller_username,x.product,x.source_type,x.source_id].join(" ").toLowerCase().includes(q)));
+ transactionsList.innerHTML=rows.length?rows.map(txCard).join(""):empty("Nenhuma transação encontrada.");
+}
+function disputeCard(x){return '<div class="card compact"><div class="inline">'+tag(x.status)+'<b>Disputa #'+x.id+'</b></div><p>'+esc(x.reason)+'</p><p class="muted">Transação #'+x.transaction_id+' • '+Safety.hc(x.amount)+'<br>'+esc(x.buyer_username)+' ↔ '+esc(x.seller_username)+'</p><div class="actions"><button class="btn primary small" onclick="resolveDispute('+x.id+',\'seller\')">Pagar vendedor</button><button class="btn small" onclick="resolveDispute('+x.id+',\'buyer\')">Reembolsar comprador</button></div></div>'}
+
+function renderMarket(){
+ listingsList.innerHTML=adminData.listings.length?adminData.listings.map(x=>'<div class="admin-row"><div><div class="inline">'+tag(x.status)+'<b>Anúncio #'+x.id+' • '+esc(x.product)+'</b></div><p class="muted">'+esc(x.seller_username)+' • '+Safety.num(x.quantity)+' un.</p></div><div><b class="gold">'+Safety.hc(x.price)+'</b><p class="muted mini">'+esc(x.description||"Sem descrição")+'</p></div><div class="actions">'+(["available","negotiating"].includes(x.status)?'<button class="btn danger small" onclick="cancelListing('+x.id+')">Cancelar anúncio</button>':'')+'</div></div>').join(""):empty("Nenhum anúncio.");
+ offersList.innerHTML=adminData.offers.length?adminData.offers.map(x=>'<div class="admin-row"><div><div class="inline">'+tag(x.status)+'<b>Proposta #'+x.id+'</b></div><p class="muted">'+esc(x.product)+' • '+esc(x.buyer_username)+' → '+esc(x.seller_username)+'</p></div><div><b>'+Safety.hc(x.amount)+'</b>'+(x.counter_amount?'<p class="muted mini">Contraproposta: '+Safety.hc(x.counter_amount)+'</p>':'')+'</div><div class="actions">'+(["pending","countered"].includes(x.status)?'<button class="btn danger small" onclick="cancelOffer('+x.id+')">Cancelar proposta</button>':'')+'</div></div>').join(""):empty("Nenhuma proposta.");
+}
+
+function renderAuctions(){
+ auctionsList.innerHTML=adminData.auctions.length?adminData.auctions.map(x=>'<div class="admin-row"><div><div class="inline">'+tag(x.status)+'<b>Leilão #'+x.id+' • '+esc(x.product)+'</b></div><p class="muted">'+esc(x.seller_username)+' • '+Safety.num(x.quantity)+' un. • encerra '+Safety.date(x.ends_at)+'</p></div><div><b class="gold">'+(x.winning_bid?Safety.hc(x.winning_bid):"Sem lance")+'</b><p class="muted mini">Vencedor atual: '+esc(x.winner_username||"—")+'</p></div><div class="actions">'+(x.status==="open"?'<button class="btn danger small" onclick="cancelAuction('+x.id+')">Cancelar e devolver lance</button>':'')+'</div></div>').join(""):empty("Nenhum leilão.");
+}
+function renderTenders(){
+ tendersList.innerHTML=adminData.tenders.length?adminData.tenders.map(x=>'<div class="admin-row"><div><div class="inline">'+tag(x.status)+'<b>Licitação #'+x.id+' • '+esc(x.title)+'</b></div><p class="muted">'+esc(x.issuer_username)+' • '+esc(x.product)+' • '+Safety.num(x.quantity)+' un.</p></div><div><b>'+(x.max_budget?Safety.hc(x.max_budget):"Sem teto")+'</b><p class="muted mini">Prazo: '+Safety.date(x.deadline)+'</p></div><div class="actions">'+(x.status==="open"?'<button class="btn danger small" onclick="cancelTender('+x.id+')">Cancelar licitação</button>':'')+'</div></div>').join(""):empty("Nenhuma licitação.");
+}
+function renderInitiatives(){
+ initiativesList.innerHTML=adminData.initiatives.length?adminData.initiatives.map(x=>'<div class="admin-row"><div><div class="inline">'+tag(x.status)+'<b>Iniciativa #'+x.id+' • '+esc(x.title)+'</b></div><p class="muted">'+esc(x.proponent_username)+' • participação: '+esc(x.offered_participation??"—")+'%</p></div><div><b class="gold">'+Safety.hc(x.funded_hc)+' / '+Safety.hc(x.target_hc)+'</b><p class="muted mini">Prazo: '+Safety.date(x.deadline)+'</p></div><div class="actions"><button class="btn small" onclick="initiativeStatus('+x.id+',\'open\')">Abrir</button><button class="btn small" onclick="initiativeStatus('+x.id+',\'funded\')">Financiada</button><button class="btn small" onclick="initiativeStatus('+x.id+',\'closed\')">Encerrar</button><button class="btn danger small" onclick="initiativeStatus('+x.id+',\'cancelled\')">Cancelar</button></div></div>').join(""):empty("Nenhuma iniciativa.");
+}
+function renderAudit(){
+ const q=(auditSearch.value||"").toLowerCase();
+ const rows=adminData.logs.filter(x=>!q||[x.action,x.entity_type,x.entity_id,JSON.stringify(x.details||{})].join(" ").toLowerCase().includes(q));
+ const users=new Map(adminData.users.map(x=>[x.id,x.username]));
+ auditRows.innerHTML=rows.length?rows.map(x=>'<tr><td>'+Safety.date(x.created_at)+'</td><td>'+esc(users.get(x.actor_id)||x.actor_id||"sistema")+'</td><td><b>'+esc(x.action)+'</b></td><td>'+esc(x.entity_type)+'</td><td>'+esc(x.entity_id||"—")+'</td><td class="code">'+esc(JSON.stringify(x.details||{}))+'</td></tr>').join(""):'<tr><td colspan="6" class="muted">Nenhum evento encontrado.</td></tr>';
+}
+
+userSearch.oninput=renderUsers;userStatusFilter.onchange=renderUsers;txSearch.oninput=renderTransactions;txStatusFilter.onchange=renderTransactions;auditSearch.oninput=renderAudit;
+
+async function setAccount(id,status){if(!confirm("Alterar status da conta para "+status+"?"))return;try{const{error}=await Safety.db().rpc("moderator_set_account_status",{p_user_id:id,p_status:status});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function adjustWallet(id,name){const raw=prompt("Ajuste de HC para "+name+". Use número positivo para adicionar ou negativo para remover:");if(raw===null)return;const delta=Number(String(raw).replace(/\s/g,"").replace(",", "."));if(!Number.isFinite(delta)||delta===0)return alert("Valor inválido.");const reason=prompt("Motivo obrigatório do ajuste:");if(!reason)return;try{const{data,error}=await Safety.db().rpc("moderator_adjust_wallet",{p_user_id:id,p_delta:Math.trunc(delta),p_reason:reason});if(error)throw error;alert("Novo saldo: "+Safety.hc(data));await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function setRole(id,value){const reason=prompt(value?"Motivo para conceder acesso de moderador:":"Motivo para remover acesso de moderador:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_set_role",{p_user_id:id,p_is_moderator:value,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function txAction(id,action){const labels={release_seller:"liberar o valor ao vendedor",refund_buyer:"reembolsar o comprador",mark_disputed:"marcar a transação como disputa"};const reason=prompt("Justificativa para "+labels[action]+":");if(!reason)return;if(!confirm("Confirmar ação administrativa?"))return;try{const{error}=await Safety.db().rpc("moderator_transaction_action",{p_transaction_id:id,p_action:action,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function resolveDispute(id,to){const reason=prompt("Fundamentação da decisão:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_resolve_dispute",{p_dispute_id:id,p_resolution:reason,p_pay_to:to});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function cancelListing(id){const reason=prompt("Motivo do cancelamento do anúncio:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_cancel_listing",{p_listing_id:id,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function cancelOffer(id){const reason=prompt("Motivo do cancelamento da proposta:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_cancel_offer",{p_offer_id:id,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function cancelAuction(id){const reason=prompt("Motivo do cancelamento. O maior lance reservado será devolvido:");if(!reason)return;if(!confirm("Cancelar leilão e devolver eventual lance reservado?"))return;try{const{error}=await Safety.db().rpc("moderator_cancel_auction",{p_auction_id:id,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function cancelTender(id){const reason=prompt("Motivo do cancelamento da licitação:");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_cancel_tender",{p_tender_id:id,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+async function initiativeStatus(id,status){const reason=prompt("Motivo para alterar o status para "+status+":");if(!reason)return;try{const{error}=await Safety.db().rpc("moderator_set_initiative_status",{p_initiative_id:id,p_status:status,p_reason:reason});if(error)throw error;await loadAll()}catch(e){alert("Erro: "+e.message)}}
+loadAll();
+</script></body></html>
