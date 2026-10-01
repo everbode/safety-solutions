@@ -148,6 +148,66 @@ window.Safety={
 
   safeUrl(v){try{const u=new URL(v,location.href);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}},
 
+  async initGlobalNav(){
+    const page=(location.pathname.split("/").pop()||"index.html").toLowerCase();
+    const publicPages=new Set(["index.html","login.html","cadastro.html"]);
+    if(publicPages.has(page))return;
+
+    const nav=document.querySelector(".topbar .nav");
+    if(!nav)return;
+
+    let links=nav.querySelector(".navlinks");
+    if(!links){
+      links=document.createElement("nav");
+      links.className="navlinks";
+      nav.appendChild(links)
+    }
+
+    const a=(href,label,extra="")=>'<a class="btn small global-nav-link '+extra+(page===href?' active':'')+'" href="'+href+'">'+label+'</a>';
+    const moreActive=["leiloes.html","licitacoes.html","investimentos.html","contratos.html","rede.html","reputacao.html","perfil.html"].includes(page);
+
+    links.innerHTML=
+      a("dashboard.html","Painel")+
+      a("mercado.html","Mercado")+
+      a("negociacoes.html","Negociações")+
+      a("transacoes.html","Transações")+
+      a("nova-oferta.html","+ Oferta","primary ")+
+      '<details class="nav-menu '+(moreActive?'active':'')+'"><summary class="btn small">Mais ▾</summary><div class="nav-menu-pop">'+
+        a("leiloes.html","Leilões")+
+        a("licitacoes.html","Licitações")+
+        a("investimentos.html","Invest")+
+        a("contratos.html","Contratos")+
+        a("rede.html","Rede")+
+        a("reputacao.html","Histórico")+
+        a("perfil.html","Perfil")+
+      '</div></details>'+
+      '<button class="btn small global-logout" type="button">Sair</button>';
+
+    links.querySelector(".global-logout")?.addEventListener("click",()=>this.logout());
+
+    try{
+      const db=this.db();
+      const{data:{user}}=await db.auth.getUser();
+      if(!user)return;
+      const{data:mod}=await db.from("moderators").select("role").eq("user_id",user.id).maybeSingle();
+      if(!mod)return;
+
+      const adminPages=["admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html"];
+      const adminActive=adminPages.includes(page);
+      const admin=document.createElement("details");
+      admin.className="nav-menu admin-menu"+(adminActive?" active":"");
+      admin.innerHTML='<summary class="btn small">Moderação ▾</summary><div class="nav-menu-pop nav-menu-right">'+
+        a("admin.html","Central Admin")+
+        a("tesouraria.html","Tesouraria")+
+        a("patrocinadores.html","Patrocinadores")+
+        a("erros.html","Erros")+
+        a("admin-alertas.html","Safety Alert Admin")+
+      '</div>';
+      const logout=links.querySelector(".global-logout");
+      links.insertBefore(admin,logout)
+    }catch{}
+  },
+
   async initSponsors(){
     const slots=[...document.querySelectorAll("[data-sponsor-placement]")];
     if(!slots.length)return;
@@ -191,4 +251,4 @@ window.addEventListener("unhandledrejection",event=>{
   if(event?.reason)window.Safety.reportError(window.Safety.formatError(event.reason,"unhandled-promise"))
 });
 
-document.addEventListener("DOMContentLoaded",()=>{window.Safety.initSponsors().catch(()=>{})});
+document.addEventListener("DOMContentLoaded",()=>{window.Safety.initGlobalNav().catch(()=>{});window.Safety.initSponsors().catch(()=>{})});
