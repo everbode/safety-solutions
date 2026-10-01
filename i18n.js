@@ -527,6 +527,21 @@ Object.assign(entries,{
 "recomendado: embaixo":["recommended: bottom","recomendado: abajo","önerilen: alt bölüm"],
 "recomendado: laterais":["recommended: sides","recomendado: laterales","önerilen: yanlar"]
 });
+Object.assign(entries,{
+"Segurança":["Security","Seguridad","Güvenlik"],
+"Segurança da Conta":["Account Security","Seguridad de la Cuenta","Hesap Güvenliği"],
+"Proteção e sessões":["Protection and sessions","Protección y sesiones","Koruma ve oturumlar"],
+"Gerencie sua verificação em duas etapas, sessão atual e histórico de segurança.":["Manage two-step verification, your current session, and security history.","Gestiona la verificación en dos pasos, la sesión actual y el historial de seguridad.","İki adımlı doğrulamayı, mevcut oturumu ve güvenlik geçmişini yönetin."],
+"Verificação em duas etapas":["Two-step verification","Verificación en dos pasos","İki adımlı doğrulama"],
+"Ativar 2FA":["Enable 2FA","Activar 2FA","2FA'yı etkinleştir"],
+"Encerrar outras sessões":["End other sessions","Cerrar otras sesiones","Diğer oturumları kapat"],
+"Sair de todos os dispositivos":["Sign out of all devices","Cerrar sesión en todos los dispositivos","Tüm cihazlardan çıkış yap"],
+"Atividade de segurança":["Security activity","Actividad de seguridad","Güvenlik etkinliği"],
+"Proteção da conta":["Account protection","Protección de la cuenta","Hesap koruması"],
+"Abrir Segurança":["Open Security","Abrir Seguridad","Güvenliği Aç"],
+"Verificação em duas etapas necessária":["Two-step verification required","Se requiere verificación en dos pasos","İki adımlı doğrulama gerekli"],
+"Conclua a verificação 2FA na área de Segurança da Conta e tente novamente.":["Complete 2FA verification in Account Security and try again.","Completa la verificación 2FA en Seguridad de la Cuenta e inténtalo de nuevo.","Hesap Güvenliği bölümünde 2FA doğrulamasını tamamlayıp tekrar deneyin."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
