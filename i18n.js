@@ -485,6 +485,14 @@ Object.assign(entries,{
 "Erro no contrato comercial":["Commercial contract error","Error en el contrato comercial","Ticari sözleşme hatası"],
 "Confira o status do contrato ou da parcela e tente novamente. Se persistir, envie o protocolo à moderação.":["Check the contract or installment status and try again. If it persists, send the protocol to moderation.","Comprueba el estado del contrato o de la cuota y vuelve a intentarlo. Si persiste, envía el protocolo a moderación.","Sözleşmenin veya taksitin durumunu kontrol edip tekrar deneyin. Sorun sürerse protokolü moderasyona gönderin."]
 });
+Object.assign(entries,{
+"Mais":["More","Más","Daha Fazla"],
+"Central Admin":["Admin Center","Centro Admin","Yönetim Merkezi"],
+"Tesouraria":["Treasury","Tesorería","Hazine"],
+"Patrocinadores":["Sponsors","Patrocinadores","Sponsorlar"],
+"Erros":["Errors","Errores","Hatalar"],
+"Safety Alert Admin":["Safety Alert Admin","Admin Safety Alert","Safety Alert Yönetimi"]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
