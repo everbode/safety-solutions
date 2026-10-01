@@ -211,36 +211,87 @@ window.Safety={
   },
 
   async initSponsors(){
-    const slots=[...document.querySelectorAll("[data-sponsor-placement]")];
-    if(!slots.length)return;
+    const page=(location.pathname.split("/").pop()||"").toLowerCase();
+    const placementMap={
+      "dashboard.html":"dashboard","mercado.html":"market","leiloes.html":"auctions",
+      "licitacoes.html":"tenders","investimentos.html":"investments","analytics.html":"analytics"
+    };
+    const existingSlots=[...document.querySelectorAll("[data-sponsor-placement]")];
+    const placement=existingSlots[0]?.dataset.sponsorPlacement||placementMap[page]||"general";
+    existingSlots.forEach(slot=>slot.closest(".sponsor-zone")?.remove());
+
+    const main=document.querySelector("main");
+    if(!main)return;
     let db;try{db=this.db()}catch{return}
-    for(const slot of slots){
-      const placement=slot.dataset.sponsorPlacement||"general";
-      try{
-        const{data,error}=await db.rpc("sponsor_feed",{p_placement:placement});
-        if(error||!(data||[]).length){slot.closest(".sponsor-zone")?.classList.add("hidden");continue}
-        const wrap=document.createElement("div");wrap.className="sponsor-grid";
-        for(const s of data){
-          const tier=["supporter","highlight","premium","master"].includes(s.tier)?s.tier:"supporter";
-          const link=document.createElement(s.target_url?"a":"div");link.className="sponsor-card sponsor-"+tier;
-          link.dataset.sponsorTier=tier;
-          const href=this.safeUrl(s.target_url);
-          if(link.tagName==="A"&&href){link.href=href;link.target="_blank";link.rel="noopener sponsored"}else if(link.tagName==="A"&&!href){link.removeAttribute("href")}
-          const media=document.createElement("div");media.className="sponsor-media";
-          const imgUrl=this.safeUrl(s.image_url);
-          if(imgUrl){const img=document.createElement("img");img.className="sponsor-logo";img.src=imgUrl;img.alt="";img.loading="lazy";media.appendChild(img)}
-          else{const ph=document.createElement("div");ph.className="sponsor-logo-placeholder";ph.textContent=(s.name||"S").trim().slice(0,1).toUpperCase();media.appendChild(ph)}
-          link.appendChild(media);
-          const copy=document.createElement("div");copy.className="sponsor-copy";
-          const badge=document.createElement("span");badge.className="sponsor-tier-badge";badge.textContent=s.tier_label||tier;
-          const name=document.createElement("p");name.className="sponsor-name";name.textContent=s.name||"Patrocinador";
-          const headline=document.createElement("p");headline.className="sponsor-headline";headline.textContent=s.headline||"";
-          copy.append(badge,name,headline);link.appendChild(copy);
-          if(href){const cta=document.createElement("span");cta.className="sponsor-cta";cta.textContent="Conhecer apoiador ↗";link.appendChild(cta)}
-          wrap.appendChild(link)
-        }
-        slot.replaceChildren(wrap)
-      }catch{slot.closest(".sponsor-zone")?.classList.add("hidden")}
+    const{data:{user}}=await db.auth.getUser();
+    if(!user)return;
+
+    const makeCard=(s,side=false)=>{
+      const tier=["supporter","highlight","premium","master"].includes(s.tier)?s.tier:"supporter";
+      const link=document.createElement(s.target_url?"a":"div");
+      link.className="sponsor-card sponsor-"+tier+(side?" sponsor-side-card":"");
+      link.dataset.sponsorTier=tier;
+      const href=this.safeUrl(s.target_url);
+      if(link.tagName==="A"&&href){link.href=href;link.target="_blank";link.rel="noopener sponsored"}
+      else if(link.tagName==="A"){link.removeAttribute("href")}
+
+      const media=document.createElement("div");media.className="sponsor-media";
+      const imgUrl=this.safeUrl(s.image_url);
+      if(imgUrl){
+        const img=document.createElement("img");img.className="sponsor-logo";img.src=imgUrl;img.alt="";img.loading="lazy";media.appendChild(img)
+      }else{
+        const ph=document.createElement("div");ph.className="sponsor-logo-placeholder";ph.textContent=(s.name||"S").trim().slice(0,1).toUpperCase();media.appendChild(ph)
+      }
+      link.appendChild(media);
+
+      const copy=document.createElement("div");copy.className="sponsor-copy";
+      const badge=document.createElement("span");badge.className="sponsor-tier-badge";badge.textContent=s.tier_label||tier;
+      const name=document.createElement("p");name.className="sponsor-name";name.textContent=s.name||"Patrocinador";
+      const headline=document.createElement("p");headline.className="sponsor-headline";headline.textContent=s.headline||"";
+      copy.append(badge,name,headline);link.appendChild(copy);
+
+      if(href){
+        const cta=document.createElement("span");cta.className="sponsor-cta";cta.textContent="Conhecer apoiador ↗";link.appendChild(cta)
+      }
+      return link
+    };
+
+    const fetchZone=async zone=>{
+      const{data,error}=await db.rpc("sponsor_feed",{p_placement:placement,p_zone:zone});
+      if(error)throw error;
+      return data||[]
+    };
+
+    try{
+      const[leftAds,rightAds,bottomAds]=await Promise.all([fetchZone("left"),fetchZone("right"),fetchZone("bottom")]);
+      if(!leftAds.length&&!rightAds.length&&!bottomAds.length)return;
+
+      const createRail=(side,ads)=>{
+        if(!ads.length)return null;
+        const rail=document.createElement("aside");
+        rail.className="sponsor-rail sponsor-rail-"+side;
+        rail.setAttribute("aria-label","Patrocinadores");
+        const label=document.createElement("span");label.className="sponsor-label";label.textContent="Apoiadores";
+        const stack=document.createElement("div");stack.className="sponsor-rail-stack";
+        ads.forEach(s=>stack.appendChild(makeCard(s,true)));
+        rail.append(label,stack);document.body.appendChild(rail);return rail
+      };
+      createRail("left",leftAds);createRail("right",rightAds);
+
+      const bottom=document.createElement("section");
+      bottom.className="sponsor-zone sponsor-bottom-zone";
+      const label=document.createElement("span");label.className="sponsor-label";label.textContent="Apoiadores da Safety Solutions";
+      const desktop=document.createElement("div");desktop.className="sponsor-grid sponsor-bottom-grid";
+      bottomAds.forEach(s=>desktop.appendChild(makeCard(s,false)));
+      const mobile=document.createElement("div");mobile.className="sponsor-grid sponsor-side-fallback";
+      [...leftAds,...rightAds].forEach(s=>mobile.appendChild(makeCard(s,false)));
+      bottom.append(label,desktop,mobile);
+      main.appendChild(bottom);
+
+      if(!bottomAds.length)desktop.classList.add("hidden");
+      if(!leftAds.length&&!rightAds.length)mobile.classList.add("hidden")
+    }catch(e){
+      this.reportError(this.formatError(e,"sponsor-layout"))
     }
   }
 };
