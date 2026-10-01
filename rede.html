@@ -1,0 +1,30 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rede Comercial | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script><style>
+.net-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:22px}.net-list{display:grid;gap:12px}.net-card{padding:16px}.net-logo{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#0b1016}.mini{font-size:12px}.directory{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(max-width:900px){.net-grid{grid-template-columns:1fr}.directory{grid-template-columns:1fr}}</style></head><body>
+<header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="reputacao.html">Histórico</a><a class="btn small" href="contratos.html">Contratos</a><a class="btn small" href="dashboard.html">Painel</a></nav></div></header>
+<main class="container"><div class="page-title"><span class="eyebrow">REDE COMERCIAL</span><h1>🔗 Parceiros e conexões</h1><p class="muted">Construa uma rede pública de relações comerciais confirmadas entre usuários e instituições.</p></div><div id="msg" class="notice hidden"></div>
+<div class="net-grid"><section><div class="section-head"><span class="gold">MINHA REDE</span><h2>Parcerias</h2></div><div id="myList" class="net-list"></div></section>
+<section><div class="section-head"><span class="gold">ENCONTRAR PARCEIROS</span><h2>Diretório</h2></div><input id="search" placeholder="Buscar usuário, instituição ou país..." style="margin-bottom:16px"><div id="directory" class="directory"></div></section></div></main>
+<script>
+let me=null,links=[],profiles=[];
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+function logo(p){const u=Safety.safeUrl(p.logo_url||p.other_logo_url);return u?'<img class="net-logo" src="'+u+'" alt="" loading="lazy">':'<div class="net-logo" style="display:grid;place-items:center;color:var(--gold);font-weight:900">'+esc((p.institution||p.country||p.other_institution||p.other_country||p.username||p.other_username||"S").slice(0,1).toUpperCase())+'</div>'}
+function statusText(s){return ({pending:"pendente",accepted:"confirmada",rejected:"rejeitada",cancelled:"encerrada"})[s]||s}
+async function load(){
+ try{
+  const db=Safety.db();me=await Safety.requireUser();
+  const[a,b]=await Promise.all([db.rpc("my_partnerships"),db.rpc("business_directory")]);if(a.error)throw a.error;if(b.error)throw b.error;
+  links=a.data||[];profiles=(b.data||[]).filter(x=>x.id!==me.id);render();
+ }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.errorMsg(msg,e,"network-load")}
+}
+function render(){
+ myList.innerHTML=links.length?links.map(x=>'<article class="card net-card"><div class="inline">'+logo(x)+'<div><a href="instituicao.html?id='+encodeURIComponent(x.other_id)+'"><b>'+esc(x.other_institution||x.other_country||x.other_username)+'</b></a><div class="muted mini">'+esc(x.other_username)+' • '+esc(statusText(x.status))+'</div></div></div>'+(x.note?'<p class="muted">'+esc(x.note)+'</p>':'')+'<div class="actions">'+(x.status==="pending"&&!x.i_am_requester?'<button class="btn primary small" onclick="respond('+x.partnership_id+',\'accept\')">Aceitar</button><button class="btn danger small" onclick="respond('+x.partnership_id+',\'reject\')">Recusar</button>':'')+((x.status==="accepted"||x.status==="pending")?'<button class="btn small" onclick="cancelLink('+x.partnership_id+')">Encerrar</button>':'')+'</div></article>').join(""):'<div class="card"><p class="muted">Você ainda não possui parcerias registradas.</p></div>';
+ const q=search.value.toLowerCase().trim();
+ const live=new Set(links.filter(x=>["pending","accepted"].includes(x.status)).map(x=>x.other_id));
+ const rows=profiles.filter(x=>!q||[x.username,x.institution,x.country,x.commercial_focus].join(" ").toLowerCase().includes(q));
+ directory.innerHTML=rows.length?rows.map(x=>'<article class="card"><div class="inline">'+logo(x)+'<div><a href="instituicao.html?id='+encodeURIComponent(x.id)+'"><b>'+esc(x.institution||x.country||x.username)+'</b></a><div class="muted mini">'+esc(x.username)+' • '+esc(x.user_type)+'</div></div></div><p class="muted">'+esc(x.commercial_focus||"Sem foco comercial informado.")+'</p><div class="actions"><a class="btn small" href="instituicao.html?id='+encodeURIComponent(x.id)+'">Ver perfil</a>'+(live.has(x.id)?'<span class="tag">Conexão existente</span>':'<button class="btn primary small" onclick="requestLink(\''+x.id+'\')">Solicitar parceria</button>')+'</div></article>').join(""):'<div class="card"><p class="muted">Nenhum perfil encontrado.</p></div>';
+}
+async function requestLink(id){const note=prompt("Mensagem opcional para o pedido de parceria:");if(note===null)return;try{const{error}=await Safety.db().rpc("request_partnership",{p_partner_id:id,p_note:note});if(error)throw error;await load()}catch(e){Safety.errorAlert(e,"request-partnership")}}
+async function respond(id,action){try{const{error}=await Safety.db().rpc("respond_partnership",{p_partnership_id:id,p_action:action});if(error)throw error;await load()}catch(e){Safety.errorAlert(e,"respond-partnership")}}
+async function cancelLink(id){const reason=prompt("Motivo opcional para encerrar a parceria:");if(reason===null)return;try{const{error}=await Safety.db().rpc("cancel_partnership",{p_partnership_id:id,p_reason:reason});if(error)throw error;await load()}catch(e){Safety.errorAlert(e,"cancel-partnership")}}
+search.oninput=render;load();
+</script></body></html>
