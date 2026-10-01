@@ -145,3 +145,18 @@
 @media(max-width:900px){
   .sponsor-bottom-zone{margin-top:42px!important}
 }
+
+/* Bau diario */
+.daily-chest{margin:22px 0 8px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;padding:24px;background:linear-gradient(135deg,#141a20,#0d1218);border-color:#5a4826}
+.daily-chest-icon{width:74px;height:74px;display:grid;place-items:center;font-size:40px;border-radius:16px;background:#171208;border:1px solid #6d572a}
+.daily-chest-copy h2{font-size:26px}
+.daily-chest-copy p{margin:4px 0}
+.daily-chest-range{font-size:20px;font-weight:900;color:var(--gold)}
+.daily-chest-action{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:170px}
+.daily-chest-action .btn{min-width:160px}
+@media(max-width:760px){
+  .daily-chest{grid-template-columns:auto 1fr;padding:18px}
+  .daily-chest-action{grid-column:1/-1;align-items:stretch;min-width:0}
+  .daily-chest-action .btn{width:100%}
+  .daily-chest-icon{width:58px;height:58px;font-size:32px}
+}
