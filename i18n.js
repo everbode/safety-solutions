@@ -542,6 +542,18 @@ Object.assign(entries,{
 "Verificação em duas etapas necessária":["Two-step verification required","Se requiere verificación en dos pasos","İki adımlı doğrulama gerekli"],
 "Conclua a verificação 2FA na área de Segurança da Conta e tente novamente.":["Complete 2FA verification in Account Security and try again.","Completa la verificación 2FA en Seguridad de la Cuenta e inténtalo de nuevo.","Hesap Güvenliği bölümünde 2FA doğrulamasını tamamlayıp tekrar deneyin."]
 });
+Object.assign(entries,{
+"BAÚ DIÁRIO":["DAILY CHEST","COFRE DIARIO","GÜNLÜK SANDIK"],
+"Recompensa de acesso":["Login reward","Recompensa de acceso","Giriş ödülü"],
+"Abrir baú":["Open chest","Abrir cofre","Sandığı aç"],
+"Baú fechado":["Chest locked","Cofre cerrado","Sandık kilitli"],
+"Disponível agora":["Available now","Disponible ahora","Şimdi hazır"],
+"Próximo baú em":["Next chest in","Próximo cofre en","Sonraki sandık"],
+"Baú diário indisponível":["Daily chest unavailable","Cofre diario no disponible","Günlük sandık kullanılamıyor"],
+"Aguarde o tempo indicado no painel antes de tentar abrir o baú novamente.":["Wait for the time shown on the dashboard before opening the chest again.","Espera el tiempo indicado en el panel antes de abrir el cofre nuevamente.","Sandığı tekrar açmadan önce panelde gösterilen süreyi bekleyin."],
+"O baú diário está temporariamente desativado.":["The daily chest is temporarily disabled.","El cofre diario está temporalmente desactivado.","Günlük sandık geçici olarak devre dışı."],
+"Sua conta ainda não pode abrir o baú.":["Your account cannot open the chest yet.","Tu cuenta aún no puede abrir el cofre.","Hesabınız henüz sandığı açamıyor."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
