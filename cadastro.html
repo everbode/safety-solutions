@@ -1,48 +1,26 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cadastro | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="index.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="login.html">Entrar</a></div></header><main class="container"><div class="form-card panel"><span class="eyebrow">NOVO CADASTRO</span><h1>👤 Criar conta</h1><p class="muted">Cadastre seu perfil para operar na Safety Solutions.</p><div id="msg" class="notice hidden"></div><form id="form" class="form-grid"><div><label>Nome de usuário</label><input id="username" required minlength="3" maxlength="40"></div><div><label>Tipo de usuário</label><select id="user_type" required><option value="">Selecione</option><option value="industry">🏭 Indústria</option><option value="reseller">📦 Revendedora</option><option value="financial">🏦 Financeira</option><option value="government">🏛️ Representante governamental</option></select></div><div class="full"><label>Link do perfil no jogo</label><input id="game_profile" type="url" placeholder="https://..." required></div><div class="full"><label id="entity_label">Instituição / grupo</label><select id="entity_select" required disabled><option value="">Selecione primeiro o tipo de usuário</option></select><input id="entity_custom" class="hidden" maxlength="80" placeholder=""></div><div class="full"><label>Cargo / função</label><input id="position" required maxlength="80"></div><div><label>E-mail</label><input id="email" type="email" required></div><div><label>Senha</label><input id="password" type="password" minlength="6" required></div><div class="full"><button class="btn primary" id="submit" type="submit">Criar conta</button></div></form><div class="notice"><b>🏛️ Contas governamentais</b><br>Para representantes governamentais, o campo acima solicita apenas o país representado. Essas contas ficam aguardando verificação da moderação.</div></div></main><script>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cadastro | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="index.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="login.html">Entrar</a></div></header><main class="container"><div class="form-card panel"><span class="eyebrow">NOVO CADASTRO</span><h1>👤 Criar conta</h1><p class="muted">Cadastre seu perfil para operar na Safety Solutions.</p><div id="msg" class="notice hidden"></div><form id="form" class="form-grid"><div><label>Nome de usuário</label><input id="username" required minlength="3" maxlength="40"></div><div><label>Tipo de usuário</label><select id="user_type" required><option value="">Selecione</option><option value="industry">🏭 Fábrica / Indústria</option><option value="reseller">📦 Revendedora</option><option value="financial">🏦 Financeira</option><option value="government">🏛️ Representante governamental</option></select></div><div class="full"><label>Link do perfil no jogo</label><input id="game_profile" type="url" placeholder="https://..." required></div><div class="full"><label id="entity_label">Nome da instituição / grupo</label><input id="entity_name" required maxlength="80" placeholder="Selecione primeiro o tipo de usuário"></div><div class="full"><label>Cargo / função</label><input id="position" required maxlength="80"></div><div><label>E-mail</label><input id="email" type="email" required></div><div><label>Senha</label><input id="password" type="password" minlength="6" required></div><div class="full"><button class="btn primary" id="submit" type="submit">Criar conta</button></div></form><div class="notice"><b>🛡️ Verificação obrigatória</b><br>Contas de <b>representantes governamentais</b> e <b>instituições financeiras</b> ficam aguardando aprovação. Após o cadastro, entre em contato com a moderação para solicitar a verificação da conta.</div></div></main><script>
 const form=document.getElementById("form"),msg=document.getElementById("msg"),submit=document.getElementById("submit");
-const typeField=document.getElementById("user_type"),entitySelect=document.getElementById("entity_select"),entityCustom=document.getElementById("entity_custom"),entityLabel=document.getElementById("entity_label");
-
-/* Listas prontas para receber as opções oficiais do RP. */
-const institutionOptions=[];
-const countryOptions=[];
+const typeField=document.getElementById("user_type"),entityLabel=document.getElementById("entity_label"),entityName=document.getElementById("entity_name");
 
 function setupEntityField(){
   const type=typeField.value;
-  entityCustom.classList.add("hidden");
-  entityCustom.required=false;
-  entityCustom.value="";
-  entitySelect.classList.remove("hidden");
-
-  if(!type){
-    entityLabel.textContent="Instituição / grupo";
-    entitySelect.disabled=true;
-    entitySelect.innerHTML='<option value="">Selecione primeiro o tipo de usuário</option>';
-    return;
+  if(type==="government"){
+    entityLabel.textContent="Nome do país representado";
+    entityName.placeholder="Ex.: Bactria";
+  }else if(type==="financial"){
+    entityLabel.textContent="Nome da instituição financeira";
+    entityName.placeholder="Ex.: Banco Popular de Bactria";
+  }else if(type==="industry"){
+    entityLabel.textContent="Nome da fábrica / indústria";
+    entityName.placeholder="Ex.: Complexo Nacional de Petróleo";
+  }else if(type==="reseller"){
+    entityLabel.textContent="Nome da revendedora";
+    entityName.placeholder="Ex.: Companhia Comercial de Fuzhou";
+  }else{
+    entityLabel.textContent="Nome da instituição / grupo";
+    entityName.placeholder="Selecione primeiro o tipo de usuário";
   }
-
-  const government=type==="government";
-  const options=government?countryOptions:institutionOptions;
-  entityLabel.textContent=government?"País representado":"Instituição / grupo";
-  entitySelect.disabled=false;
-
-  const placeholder=government?"Selecione o país":"Selecione a instituição / grupo";
-  const manual=government?"__custom__|Outro país / não listado":"__custom__|Outra instituição / grupo";
-
-  entitySelect.innerHTML='<option value="">'+placeholder+'</option>'+
-    options.map(x=>'<option value="'+x+'">'+x+'</option>').join("")+
-    '<option value="'+manual.split("|")[0]+'">'+manual.split("|")[1]+'</option>';
 }
-
-entitySelect.addEventListener("change",()=>{
-  if(entitySelect.value==="__custom__"){
-    entitySelect.classList.add("hidden");
-    entityCustom.classList.remove("hidden");
-    entityCustom.required=true;
-    entityCustom.placeholder=typeField.value==="government"?"Digite o nome do país":"Digite o nome da instituição / grupo";
-    entityCustom.focus();
-  }
-});
-
 typeField.addEventListener("change",setupEntityField);
 setupEntityField();
 
@@ -53,15 +31,15 @@ form.addEventListener("submit",async e=>{
   try{
     const db=Safety.db();
     const type=typeField.value;
-    const entityName=(entitySelect.value==="__custom__"?entityCustom.value:entitySelect.value).trim();
-    if(!entityName) throw new Error(type==="government"?"Selecione ou informe o país.":"Selecione ou informe a instituição / grupo.");
+    const entity=entityName.value.trim();
+    if(!entity) throw new Error("Informe o nome correspondente ao tipo de usuário.");
 
     const metadata={
       username:username.value.trim(),
       game_profile:game_profile.value.trim(),
       user_type:type,
-      institution:type==="government"?null:entityName,
-      country:type==="government"?entityName:null,
+      institution:type==="government"?null:entity,
+      country:type==="government"?entity:null,
       position:position.value.trim()
     };
 
@@ -72,8 +50,9 @@ form.addEventListener("submit",async e=>{
     });
     if(error)throw error;
 
-    Safety.msg(msg,type==="government"
-      ?"✅ Conta criada. Confirme o e-mail; depois o cadastro governamental ficará aguardando verificação."
+    const needsVerification=type==="government"||type==="financial";
+    Safety.msg(msg,needsVerification
+      ?"✅ Conta criada. Confirme o e-mail e entre em contato com a moderação para solicitar a aprovação da sua conta."
       :"✅ Conta criada. Confira seu e-mail para confirmar o cadastro.","success");
     form.reset();
     setupEntityField();
