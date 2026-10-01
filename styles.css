@@ -115,8 +115,23 @@
 .sponsor-bottom-zone>.sponsor-label{font-size:12px;color:#a7b0ba}
 .sponsor-bottom-grid{margin-top:14px}
 .sponsor-side-fallback{display:none;margin-top:18px}
+@media(min-width:1500px){
+  .sponsor-rail{display:block;width:160px}
+  .sponsor-rail-left{left:8px}
+  .sponsor-rail-right{right:8px}
+  .sponsor-side-card{padding:10px!important}
+  .sponsor-side-card .sponsor-media{height:112px!important}
+  .sponsor-side-card .sponsor-name{font-size:17px!important}
+  .sponsor-side-card .sponsor-headline{font-size:12px!important}
+}
 @media(min-width:1660px){
-  .sponsor-rail{display:block}
+  .sponsor-rail{width:220px}
+  .sponsor-rail-left{left:18px}
+  .sponsor-rail-right{right:18px}
+  .sponsor-side-card{padding:14px!important}
+  .sponsor-side-card .sponsor-media{height:145px!important}
+  .sponsor-side-card .sponsor-name{font-size:20px!important}
+  .sponsor-side-card .sponsor-headline{font-size:13px!important}
 }
 @media(min-width:1800px){
   .sponsor-rail{width:250px}
@@ -124,7 +139,7 @@
   .sponsor-rail-right{right:24px}
   .sponsor-side-card .sponsor-media{height:165px!important}
 }
-@media(max-width:1659px){
+@media(max-width:1499px){
   .sponsor-side-fallback{display:grid}
 }
 @media(max-width:900px){
