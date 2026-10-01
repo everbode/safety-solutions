@@ -497,6 +497,25 @@ Object.assign(entries,{
 "Falha na interface da plataforma":["Platform interface failure","Fallo en la interfaz de la plataforma","Platform arayüz hatası"],
 "Atualize a página. Se o erro continuar, envie o código e o protocolo à moderação.":["Refresh the page. If the error continues, send the code and protocol to moderation.","Actualiza la página. Si el error continúa, envía el código y el protocolo a moderación.","Sayfayı yenileyin. Hata devam ederse kodu ve protokolü moderasyona gönderin."]
 });
+Object.assign(entries,{
+"CLASSIFICAÇÃO E PREÇOS":["CLASSIFICATION AND PRICING","CLASIFICACIÓN Y PRECIOS","SINIFLANDIRMA VE FİYATLANDIRMA"],
+"Pacotes de patrocínio":["Sponsorship packages","Paquetes de patrocinio","Sponsorluk paketleri"],
+"Quanto maior a presença visual, maior o preço em HC. A duração padrão também faz parte do pacote.":["The larger the visual presence, the higher the HC price. The standard duration is also part of the package.","Cuanto mayor sea la presencia visual, mayor será el precio en HC. La duración estándar también forma parte del paquete.","Görsel alan büyüdükçe HC fiyatı artar. Standart süre de pakete dahildir."],
+"Classificação":["Classification","Clasificación","Sınıflandırma"],
+"Apoiador":["Supporter","Colaborador","Destekçi"],
+"Destaque":["Highlight","Destacado","Öne Çıkan"],
+"Premium":["Premium","Premium","Premium"],
+"Master":["Master","Master","Master"],
+"Prioridade interna":["Internal priority","Prioridad interna","Dahili öncelik"],
+"Faixa horizontal ampla":["Wide horizontal strip","Franja horizontal amplia","Geniş yatay alan"],
+"Bloco médio em destaque":["Medium highlighted block","Bloque destacado mediano","Orta boy öne çıkan blok"],
+"Bloco grande de alta visibilidade":["Large high-visibility block","Bloque grande de alta visibilidad","Yüksek görünürlüklü büyük blok"],
+"Faixa principal em largura total":["Full-width main banner","Franja principal a ancho completo","Tam genişlik ana sponsor alanı"],
+"por":["for","por","için"],
+"dias":["days","días","gün"],
+"Conhecer apoiador ↗":["Visit supporter ↗","Conocer patrocinador ↗","Destekçiyi gör ↗"],
+"Os anúncios ocupam espaço real no conteúdo, com tamanhos proporcionais ao pacote contratado. Nenhum formato usa pop-up, sobreposição ou interfere na navegação.":["Ads use real content space, with sizes proportional to the selected package. No format uses pop-ups, overlays, or interferes with navigation.","Los anuncios ocupan espacio real en el contenido, con tamaños proporcionales al paquete contratado. Ningún formato usa ventanas emergentes, superposiciones ni interfiere con la navegación.","Reklamlar içerikte gerçek alan kullanır ve boyutları seçilen pakete göre değişir. Hiçbir format açılır pencere, kaplama kullanmaz veya gezinmeyi engellemez."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
