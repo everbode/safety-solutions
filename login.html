@@ -1,1 +1,31 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Entrar | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="index.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="cadastro.html">Cadastrar</a></div></header><main class="container"><div class="form-card panel" style="max-width:520px"><span class="eyebrow">ÁREA SEGURA</span><h1>🔐 Entrar</h1><p class="muted">Acesse sua conta para negociar, acompanhar custódias e consultar seu histórico.</p><div id="msg" class="notice hidden"></div><form id="form"><label>E-mail</label><input id="email" type="email" required><label style="margin-top:14px">Senha</label><input id="password" type="password" required><button class="btn primary" style="width:100%;margin-top:18px" id="submit">Entrar</button></form><div class="divider"></div><p class="muted">Ainda não tem conta? <a class="gold" href="cadastro.html">Criar cadastro</a></p></div></main><script>form.addEventListener("submit",async e=>{e.preventDefault();submit.disabled=true;submit.textContent="Entrando...";try{const db=Safety.db();const{error}=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(error)throw error;location.href="dashboard.html"}catch(err){if(err.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else Safety.msg(msg,"❌ "+err.message,"error")}finally{submit.disabled=false;submit.textContent="Entrar"}});</script></body></html>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Entrar | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="i18n.js"></script></head><body><header class="topbar"><div class="container nav"><a class="brand" href="index.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="cadastro.html">Cadastrar</a></div></header><main class="container"><div class="form-card panel" style="max-width:520px"><span class="eyebrow">ÁREA SEGURA</span><h1>🔐 Entrar</h1><p class="muted">Acesse sua conta para negociar, acompanhar custódias e consultar seu histórico.</p><div id="msg" class="notice hidden"></div><form id="form"><label>E-mail</label><input id="email" type="email" required><label style="margin-top:14px">Senha</label><input id="password" type="password" required><button class="btn primary" style="width:100%;margin-top:18px" id="submit">Entrar</button></form><div id="mfaStep" class="hidden"><div class="notice"><b>🛡️ Verificação em duas etapas</b><p class="muted">Digite o código atual do seu aplicativo autenticador para concluir o login.</p></div><label>Código de verificação</label><input id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="000000"><button class="btn primary" style="width:100%;margin-top:18px" id="verifyMfa" type="button">Confirmar e entrar</button><button class="btn" style="width:100%;margin-top:10px" id="cancelMfa" type="button">Cancelar</button></div><div class="divider"></div><p class="muted">Ainda não tem conta? <a class="gold" href="cadastro.html">Criar cadastro</a></p></div></main><script>
+let pendingDb=null,pendingFactor=null;
+async function recordLogin(db){try{await db.rpc("record_my_security_event",{p_event_type:"login_success",p_details:{user_agent:navigator.userAgent,page:location.pathname}})}catch{}}
+async function finishLogin(db){await recordLogin(db);location.href="dashboard.html"}
+form.addEventListener("submit",async e=>{
+ e.preventDefault();submit.disabled=true;submit.textContent="Entrando...";
+ try{
+  const db=Safety.db();pendingDb=db;
+  const{error}=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(error)throw error;
+  const aalRes=await db.auth.mfa.getAuthenticatorAssuranceLevel();if(aalRes.error)throw aalRes.error;
+  const aal=aalRes.data||{};
+  if(aal.nextLevel==="aal2"&&aal.currentLevel!=="aal2"){
+    const f=await db.auth.mfa.listFactors();if(f.error)throw f.error;
+    const factors=[...(f.data?.totp||[]),...(f.data?.phone||[])].filter(x=>x.status==="verified");
+    if(!factors.length)throw new Error("MFA_REQUIRED");
+    pendingFactor=factors[0];form.classList.add("hidden");mfaStep.classList.remove("hidden");mfaCode.focus()
+  }else await finishLogin(db)
+ }catch(err){if(err.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else Safety.errorMsg(msg,err,"login")}
+ finally{submit.disabled=false;submit.textContent="Entrar"}
+});
+verifyMfa.onclick=async()=>{
+ const code=mfaCode.value.trim();if(!code||!pendingDb||!pendingFactor)return;
+ verifyMfa.disabled=true;verifyMfa.textContent="Verificando...";
+ try{
+  const r=await pendingDb.auth.mfa.challengeAndVerify({factorId:pendingFactor.id,code});if(r.error)throw r.error;
+  await finishLogin(pendingDb)
+ }catch(err){Safety.errorMsg(msg,err,"login-mfa")}
+ finally{verifyMfa.disabled=false;verifyMfa.textContent="Confirmar e entrar"}
+};
+cancelMfa.onclick=async()=>{try{if(pendingDb)await pendingDb.auth.signOut({scope:"local"})}catch{}pendingDb=null;pendingFactor=null;mfaCode.value="";mfaStep.classList.add("hidden");form.classList.remove("hidden")};
+</script></body></html>
