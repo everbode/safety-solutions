@@ -221,17 +221,22 @@ window.Safety={
         if(error||!(data||[]).length){slot.closest(".sponsor-zone")?.classList.add("hidden");continue}
         const wrap=document.createElement("div");wrap.className="sponsor-grid";
         for(const s of data){
-          const link=document.createElement(s.target_url?"a":"div");link.className="sponsor-card";
+          const tier=["supporter","highlight","premium","master"].includes(s.tier)?s.tier:"supporter";
+          const link=document.createElement(s.target_url?"a":"div");link.className="sponsor-card sponsor-"+tier;
+          link.dataset.sponsorTier=tier;
           const href=this.safeUrl(s.target_url);
           if(link.tagName==="A"&&href){link.href=href;link.target="_blank";link.rel="noopener sponsored"}else if(link.tagName==="A"&&!href){link.removeAttribute("href")}
+          const media=document.createElement("div");media.className="sponsor-media";
           const imgUrl=this.safeUrl(s.image_url);
-          if(imgUrl){const img=document.createElement("img");img.className="sponsor-logo";img.src=imgUrl;img.alt="";img.loading="lazy";link.appendChild(img)}
-          else{const ph=document.createElement("div");ph.className="sponsor-logo-placeholder";ph.textContent=(s.name||"S").trim().slice(0,1).toUpperCase();link.appendChild(ph)}
+          if(imgUrl){const img=document.createElement("img");img.className="sponsor-logo";img.src=imgUrl;img.alt="";img.loading="lazy";media.appendChild(img)}
+          else{const ph=document.createElement("div");ph.className="sponsor-logo-placeholder";ph.textContent=(s.name||"S").trim().slice(0,1).toUpperCase();media.appendChild(ph)}
+          link.appendChild(media);
           const copy=document.createElement("div");copy.className="sponsor-copy";
+          const badge=document.createElement("span");badge.className="sponsor-tier-badge";badge.textContent=s.tier_label||tier;
           const name=document.createElement("p");name.className="sponsor-name";name.textContent=s.name||"Patrocinador";
           const headline=document.createElement("p");headline.className="sponsor-headline";headline.textContent=s.headline||"";
-          copy.append(name,headline);link.appendChild(copy);
-          if(href){const cta=document.createElement("span");cta.className="sponsor-cta";cta.textContent="Conhecer ↗";link.appendChild(cta)}
+          copy.append(badge,name,headline);link.appendChild(copy);
+          if(href){const cta=document.createElement("span");cta.className="sponsor-cta";cta.textContent="Conhecer apoiador ↗";link.appendChild(cta)}
           wrap.appendChild(link)
         }
         slot.replaceChildren(wrap)
