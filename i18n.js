@@ -431,7 +431,7 @@ function preserve(raw,newCore){
 }
 function translateTextNode(node,l){
   const parent=node.parentElement;if(!parent||parent.closest("[data-no-i18n]")||["SCRIPT","STYLE","CODE","PRE"].includes(parent.tagName))return;
-  if(parent.tagName==="OPTION"&&!parent.hasAttribute("value"))return;
+  if(parent.tagName==="OPTION"&&!parent.hasAttribute("value"))parent.setAttribute("value",String(node.nodeValue||"").trim());
   if(!originalText.has(node))originalText.set(node,node.nodeValue);
   const raw=originalText.get(node),core=String(raw).trim();if(!core)return;
   const translated=l===PT?core:t(core,l);
@@ -465,7 +465,7 @@ function makePicker(){
   if(document.querySelector(".language-picker"))return;
   const host=document.querySelector(".navlinks")||document.querySelector(".nav");if(!host)return;
   const wrap=document.createElement("label");wrap.className="language-picker";wrap.setAttribute("data-no-i18n","");
-  wrap.innerHTML='<span aria-hidden="true">🌐</span><select aria-label="Language"><option value="pt">PT</option><option value="en">EN</option><option value="es">ES</option><option value="tr">TR</option></select>';
+  wrap.innerHTML='<span aria-hidden="true">🌐</span><select aria-label="Language"><option value="pt">🇧🇷 PT</option><option value="en">🇺🇸 EN</option><option value="es">🇪🇸 ES</option><option value="tr">🇹🇷 TR</option></select>';
   const select=wrap.querySelector("select");select.value=lang();select.addEventListener("change",()=>setLanguage(select.value));
   host.prepend(wrap)
 }
