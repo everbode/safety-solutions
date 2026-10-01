@@ -20,6 +20,7 @@ window.Safety={
     "SS-AUTH-002":{title:"Login inválido",action:"Confira o e-mail e a senha. Se necessário, tente entrar novamente com os dados corretos."},
     "SS-AUTH-003":{title:"E-mail ainda não confirmado",action:"Confirme o e-mail da conta e depois faça login novamente."},
     "SS-AUTH-004":{title:"Conta já cadastrada",action:"Use o login existente ou cadastre outro e-mail."},
+    "SS-AUTH-005":{title:"Verificação em duas etapas necessária",action:"Conclua a verificação 2FA na área de Segurança da Conta e tente novamente."},
     "SS-ACC-001":{title:"Conta não está ativa",action:"Verifique o status da conta. Se estiver aguardando aprovação, entre em contato com a moderação."},
     "SS-HC-001":{title:"HubCredit insuficiente",action:"Confira seu saldo de HC e reduza o valor da operação ou obtenha saldo suficiente antes de tentar novamente."},
     "SS-PERM-001":{title:"Permissão insuficiente",action:"Essa ação exige outro nível de acesso. Se acreditar que deveria ter permissão, envie este código à moderação."},
@@ -51,6 +52,7 @@ window.Safety={
     else if(s.includes("invalid login credentials")||s.includes("invalid credentials"))code="SS-AUTH-002";
     else if(s.includes("email not confirmed"))code="SS-AUTH-003";
     else if(s.includes("user already registered")||s.includes("already been registered"))code="SS-AUTH-004";
+    else if(s.includes("mfa_required")||s.includes("aal2"))code="SS-AUTH-005";
     else if(s.includes("auth_required")||s.includes("jwt expired")||s.includes("session")&&s.includes("expired"))code="SS-AUTH-001";
     else if(s.includes("account is not active")||s.includes("awaiting_verification"))code="SS-ACC-001";
     else if(s.includes("insufficient hubcredit")||s.includes("insufficient")&&s.includes("balance"))code="SS-HC-001";
@@ -141,7 +143,7 @@ window.Safety={
 
   async user(){const{data:{user}}=await this.db().auth.getUser();return user},
   async requireUser(){const u=await this.user();if(!u){location.href="login.html";throw new Error("AUTH_REQUIRED")}return u},
-  async logout(){await this.db().auth.signOut();location.href="index.html"},
+  async logout(){await this.db().auth.signOut({scope:"local"});location.href="index.html"},
 
   configNotice(el){
     const info=this.formatError("CONFIG_PENDENTE","configuration");
@@ -166,7 +168,7 @@ window.Safety={
     }
 
     const a=(href,label,extra="")=>'<a class="btn small global-nav-link '+extra+(page===href?' active':'')+'" href="'+href+'">'+label+'</a>';
-    const moreActive=["leiloes.html","licitacoes.html","investimentos.html","contratos.html","rede.html","reputacao.html","perfil.html"].includes(page);
+    const moreActive=["leiloes.html","licitacoes.html","investimentos.html","contratos.html","rede.html","reputacao.html","perfil.html","seguranca.html"].includes(page);
 
     links.innerHTML=
       a("dashboard.html","Painel")+
@@ -182,6 +184,7 @@ window.Safety={
         a("rede.html","Rede")+
         a("reputacao.html","Histórico")+
         a("perfil.html","Perfil")+
+        a("seguranca.html","Segurança")+
       '</div></details>'+
       '<button class="btn small global-logout" type="button">Sair</button>';
 
