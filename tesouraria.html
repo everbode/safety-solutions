@@ -1,0 +1,42 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tesouraria | Safety Solutions</title><link rel="stylesheet" href="styles.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><style>.treasury-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.setting-row{display:grid;grid-template-columns:1.4fr repeat(4,minmax(100px,.7fr)) auto;gap:10px;align-items:end;padding:16px;border:1px solid #252e38;border-radius:12px;margin-bottom:12px}.setting-row input{min-width:0}@media(max-width:950px){.treasury-grid{grid-template-columns:repeat(2,1fr)}.setting-row{grid-template-columns:1fr 1fr}}@media(max-width:560px){.treasury-grid,.setting-row{grid-template-columns:1fr}}</style></head><body><header class="topbar"><div class="container nav"><a class="brand" href="dashboard.html">SAFETY <span>SOLUTIONS</span></a><nav class="navlinks"><a class="btn small" href="admin.html">Admin</a><a class="btn small" href="dashboard.html">Painel</a><button class="btn small" onclick="Safety.logout()">Sair</button></nav></div></header><main class="container"><div class="page-title"><span class="eyebrow">TESOURARIA</span><h1>💰 Receita da Safety Solutions</h1><p class="muted">Acompanhe taxas arrecadadas e, se você for Proprietário, altere a política de cobrança.</p></div><div id="msg" class="notice hidden"></div><div id="content" class="hidden"><div id="cards" class="treasury-grid"></div><section class="section"><div class="section-head"><span class="gold">POLÍTICA DE TAXAS</span><h2>Configuração</h2></div><div id="settings"></div></section><section class="section"><div class="section-head"><span class="gold">RECEITAS</span><h2>Últimos lançamentos</h2></div><div class="card table-wrap"><table class="table"><thead><tr><th>Data</th><th>Origem</th><th>Pagador</th><th>Base</th><th>Taxa</th><th>Receita</th></tr></thead><tbody id="revenueRows"></tbody></table></div></section></div></main><script>
+let myRole=null,level=0,data={overview:{},settings:[],revenue:[]};const levels={auditor:10,moderator:20,admin:30,owner:40};
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+async function load(){
+ try{
+  const db=Safety.db(),u=await Safety.requireUser();
+  const{data:mod}=await db.from("moderators").select("role").eq("user_id",u.id).maybeSingle();
+  if(!mod)return Safety.msg(msg,"⛔ Acesso restrito à equipe administrativa.","error");
+  myRole=mod.role;level=levels[myRole]||0;content.classList.remove("hidden");
+  const[o,s,r]=await Promise.all([db.rpc("admin_treasury_overview"),db.rpc("admin_fee_settings"),db.rpc("admin_revenue_feed",{p_limit:200})]);
+  if(o.error)throw o.error;if(s.error)throw s.error;if(r.error)throw r.error;
+  data={overview:(o.data||[])[0]||{},settings:s.data||[],revenue:r.data||[]};render();
+ }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+e.message,"error")}
+}
+function render(){
+ const o=data.overview;
+ cards.innerHTML=[
+  ["🏦 Saldo da Tesouraria",Safety.hc(o.treasury_balance||0)],
+  ["📈 Receita acumulada",Safety.hc(o.total_revenue||0)],
+  ["☀️ Receita hoje",Safety.hc(o.today_revenue||0)],
+  ["🧾 Lançamentos",Safety.num(o.revenue_entries||0)],
+  ["🤝 Taxas de transação",Safety.hc(o.transaction_fee_revenue||0)],
+  ["⭐ Destaques",Safety.hc(o.featured_revenue||0)]
+ ].map(x=>'<div class="card"><span class="muted">'+x[0]+'</span><div class="stat">'+x[1]+'</div></div>').join("");
+ settings.innerHTML=data.settings.map(s=>{
+   const editable=level>=40;
+   return '<div class="setting-row"><div><b>'+esc(s.label)+'</b><p class="muted mini">'+esc(s.fee_key)+'</p></div><div><label>Percentual</label><input id="rate_'+s.fee_key+'" type="number" step="0.01" min="0" max="100" value="'+(s.rate_bps/100)+'" '+(editable?'':'disabled')+'></div><div><label>Valor fixo HC</label><input id="fixed_'+s.fee_key+'" type="number" min="0" value="'+s.fixed_amount+'" '+(editable?'':'disabled')+'></div><div><label>Duração (h)</label><input id="hours_'+s.fee_key+'" type="number" min="1" value="'+(s.duration_hours??"")+'" '+(editable?'':'disabled')+'></div><div><label>Ativa</label><select id="enabled_'+s.fee_key+'" '+(editable?'':'disabled')+'><option value="true" '+(s.enabled?'selected':'')+'>Sim</option><option value="false" '+(!s.enabled?'selected':'')+'>Não</option></select></div><div>'+(editable?'<button class="btn primary small" onclick="saveSetting(\''+s.fee_key+'\')">Salvar</button>':'<span class="muted mini">Somente Proprietário</span>')+'</div></div>';
+ }).join("");
+ revenueRows.innerHTML=data.revenue.length?data.revenue.map(r=>'<tr><td>'+Safety.date(r.created_at)+'</td><td>'+esc(r.revenue_type)+'<br><span class="muted mini">'+esc(r.source_type)+(r.source_id?' #'+r.source_id:'')+'</span></td><td>'+esc(r.payer_username||"—")+'</td><td>'+(r.gross_amount!=null?Safety.hc(r.gross_amount):"—")+'</td><td>'+(r.fee_rate_bps!=null?(r.fee_rate_bps/100).toLocaleString("pt-BR")+"%":"fixa")+'</td><td><b class="gold">'+Safety.hc(r.amount)+'</b></td></tr>').join(""):'<tr><td colspan="6" class="muted">Nenhuma receita registrada ainda.</td></tr>';
+}
+async function saveSetting(key){
+ if(level<40)return;
+ const rate=Math.round(Number(document.getElementById("rate_"+key).value||0)*100);
+ const fixed=Math.trunc(Number(document.getElementById("fixed_"+key).value||0));
+ const rawHours=document.getElementById("hours_"+key).value;
+ const hours=rawHours===""?null:Math.trunc(Number(rawHours));
+ const enabled=document.getElementById("enabled_"+key).value==="true";
+ if(!confirm("Salvar nova configuração de cobrança? Novas operações usarão estes valores."))return;
+ try{const{error}=await Safety.db().rpc("owner_update_fee_setting",{p_fee_key:key,p_rate_bps:rate,p_fixed_amount:fixed,p_duration_hours:hours,p_enabled:enabled});if(error)throw error;await load()}catch(e){alert("Erro: "+e.message)}
+}
+load();
+</script></body></html>
