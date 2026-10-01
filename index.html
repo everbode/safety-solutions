@@ -1,59 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Safety Solutions</title>
 
-.cadastro-section {
-    background: #0b0f14;
-    display: none;
-}
-
-.cadastro-box {
-    max-width: 600px;
-    margin: auto;
-    background: #111820;
-    border: 1px solid #222d38;
-    border-radius: 14px;
-    padding: 35px;
-}
-
-#cadastroForm {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-#cadastroForm label {
-    color: #c8d0d9;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-#cadastroForm input,
-#cadastroForm select {
-    width: 100%;
-    padding: 13px;
-    border-radius: 7px;
-    border: 1px solid #303944;
-    background: #0b0f14;
-    color: white;
-}
-
-#cadastroForm button {
-    border: none;
-    cursor: pointer;
-    margin-top: 18px;
-}
-
-#cadastroMensagem {
-    text-align: center;
-    margin-top: 10px;
-}
- 
     <style>
         * {
             margin: 0;
@@ -313,59 +265,411 @@
     </nav>
 </header>
 
- <section id="cadastro" class="cadastro-section">
+<main>
 
-    <div class="cadastro-box">
+    <section class="hero">
+        <div class="hero-content">
+
+            <div class="badge">
+                Plataforma de operações de alto valor
+            </div>
+
+            <h1>
+                Negocie com <span>segurança.</span>
+            </h1>
+
+            <p>
+                Uma plataforma desenvolvida para intermediar,
+                registrar e proteger grandes operações comerciais
+                dentro do nosso mercado.
+            </p>
+
+            <div class="buttons">
+                <a href="#" class="button primary">
+                    Acessar mercado
+                </a>
+
+                <a href="#" class="button secondary">
+                    Criar conta
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+
+    <section>
 
         <div class="section-title">
-            <h2>Criar conta</h2>
-            <p>Faça seu cadastro no Safety Solutions</p>
+            <h2>Uma nova forma de negociar</h2>
+
+            <p>
+                Estrutura para operações comerciais de grande porte.
+            </p>
         </div>
 
-        <form id="cadastroForm">
+        <div class="services">
 
-            <label>Nome de usuário</label>
-            <input type="text" id="username" required>
+            <div class="card">
+                <div class="icon">🛒</div>
+                <h3>Mercado</h3>
+                <p>
+                    Encontre e publique ofertas de produtos
+                    de alto valor.
+                </p>
+            </div>
 
-            <label>Link do perfil no jogo</label>
-            <input type="url" id="game_profile" required>
+            <div class="card">
+                <div class="icon">🔐</div>
+                <h3>Custódia</h3>
+                <p>
+                    Recursos permanecem protegidos até
+                    a confirmação da operação.
+                </p>
+            </div>
 
-            <label>Tipo de usuário</label>
-            <select id="user_type" required>
-                <option value="">Selecione</option>
-                <option value="industry">Indústria</option>
-                <option value="reseller">Revendedora</option>
-                <option value="financial">Financeira</option>
-                <option value="government">Representante governamental</option>
-            </select>
+            <div class="card">
+                <div class="icon">⚖️</div>
+                <h3>Mediação</h3>
+                <p>
+                    Sistema para tratar disputas e
+                    registrar decisões.
+                </p>
+            </div>
 
-            <label>Nome do grupo ou instituição</label>
-            <input type="text" id="institution" required>
+            <div class="card">
+                <div class="icon">📋</div>
+                <h3>Registro</h3>
+                <p>
+                    Histórico das operações e
+                    informações das instituições.
+                </p>
+            </div>
 
-            <label>País no jogo</label>
-            <input type="text" id="country" required>
+        </div>
 
-            <label>Cargo / posição</label>
-            <input type="text" id="position" required>
+    </section>
 
-            <label>E-mail</label>
-            <input type="email" id="email" required>
 
-            <label>Senha</label>
-            <input type="password" id="password" minlength="6" required>
+    <section class="products">
 
-            <button type="submit" class="button primary">
-                Criar conta
-            </button>
+        <div class="section-title">
+            <h2>Produtos negociados</h2>
 
-            <p id="cadastroMensagem"></p>
+            <p>
+                Operações destinadas ao mercado de alto volume.
+            </p>
+        </div>
 
-        </form>
+        <div class="product-grid">
 
+            <div class="product">
+                <div class="product-icon">🥇</div>
+                <h3>Ouro</h3>
+                <p>Operações de grande volume</p>
+            </div>
+
+            <div class="product">
+                <div class="product-icon">🛢️</div>
+                <h3>Petróleo</h3>
+                <p>Negociações industriais</p>
+            </div>
+
+            <div class="product">
+                <div class="product-icon">🐄</div>
+                <h3>Couro</h3>
+                <p>Mercado de produção</p>
+            </div>
+
+            <div class="product">
+                <div class="product-icon">💠</div>
+                <h3>TRM</h3>
+                <p>Operações de alto volume</p>
+            </div>
+
+        </div>
+
+        <div class="minimum">
+            Operações a partir de 100.000 unidades
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+    © 2026 Safety Solutions — Negocie com segurança. Transacione com confiança.
+</footer>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Safety Solutions</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b0f14;
+            color: #ffffff;
+        }
+
+        header {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            border-bottom: 1px solid #202832;
+            background: #0b0f14;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: #e0a83a;
+        }
+
+        nav {
+            display: flex;
+            gap: 12px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .login {
+            border: 1px solid #303944;
+        }
+
+        .register {
+            background: #e0a83a;
+            color: #111111;
+            font-weight: 700;
+        }
+
+        .hero {
+            min-height: 560px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+            background:
+                radial-gradient(circle at center, #18212d 0%, #0b0f14 65%);
+        }
+
+        .hero-content {
+            max-width: 850px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border: 1px solid #394553;
+            border-radius: 30px;
+            color: #d4dbe3;
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 7vw, 76px);
+            line-height: 1;
+            margin-bottom: 25px;
+        }
+
+        h1 span {
+            color: #e0a83a;
+        }
+
+        .hero p {
+            color: #aeb8c4;
+            font-size: 18px;
+            line-height: 1.7;
+            max-width: 680px;
+            margin: auto;
+        }
+
+        .buttons {
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 15px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .primary {
+            background: #e0a83a;
+            color: #111111;
+        }
+
+        .secondary {
+            border: 1px solid #394553;
+            color: #ffffff;
+        }
+
+        section {
+            padding: 80px 7%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .section-title h2 {
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .section-title p {
+            color: #8995a3;
+        }
+
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .card {
+            background: #111820;
+            border: 1px solid #222d38;
+            padding: 28px;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #596675;
+        }
+
+        .icon {
+            font-size: 30px;
+            margin-bottom: 18px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #8995a3;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .products {
+            background: #0e141b;
+        }
+
+        .product-grid {
+            max-width: 900px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+        }
+
+        .product {
+            background: #111820;
+            border: 1px solid #222d38;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .product-icon {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .product p {
+            color: #8995a3;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .minimum {
+            text-align: center;
+            margin-top: 35px;
+            color: #e0a83a;
+            font-weight: 700;
+        }
+
+        footer {
+            border-top: 1px solid #202832;
+            padding: 30px 7%;
+            text-align: center;
+            color: #687482;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 0 20px;
+            }
+
+            nav a {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .hero {
+                min-height: 500px;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        SAFETY <span>SOLUTIONS</span>
     </div>
 
-</section>
- 
+    <nav>
+        <a href="#" class="login">Entrar</a>
+        <a href="#" class="register">Cadastrar</a>
+    </nav>
+</header>
+
 <main>
 
     <section class="hero">
