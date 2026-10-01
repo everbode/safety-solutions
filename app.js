@@ -23,6 +23,7 @@ window.Safety={
     "SS-AUTH-005":{title:"Verificação em duas etapas necessária",action:"Conclua a verificação 2FA na área de Segurança da Conta e tente novamente."},
     "SS-ACC-001":{title:"Conta não está ativa",action:"Verifique o status da conta. Se estiver aguardando aprovação, entre em contato com a moderação."},
     "SS-HC-001":{title:"HubCredit insuficiente",action:"Confira seu saldo de HC e reduza o valor da operação ou obtenha saldo suficiente antes de tentar novamente."},
+    "SS-HC-002":{title:"Baú diário indisponível",action:"Aguarde o tempo indicado no painel antes de tentar abrir o baú novamente."},
     "SS-PERM-001":{title:"Permissão insuficiente",action:"Essa ação exige outro nível de acesso. Se acreditar que deveria ter permissão, envie este código à moderação."},
     "SS-MKT-001":{title:"Oferta do mercado indisponível",action:"Atualize a página. A oferta pode ter sido vendida, cancelada ou alterada."},
     "SS-NEG-001":{title:"Negociação indisponível",action:"Atualize a página e confira o estado da proposta ou contraproposta antes de tentar novamente."},
@@ -55,6 +56,7 @@ window.Safety={
     else if(s.includes("mfa_required")||s.includes("aal2"))code="SS-AUTH-005";
     else if(s.includes("auth_required")||s.includes("jwt expired")||s.includes("session")&&s.includes("expired"))code="SS-AUTH-001";
     else if(s.includes("account is not active")||s.includes("awaiting_verification"))code="SS-ACC-001";
+    else if(s.includes("daily chest"))code="SS-HC-002";
     else if(s.includes("insufficient hubcredit")||s.includes("insufficient")&&s.includes("balance"))code="SS-HC-001";
     else if(s.includes("insufficient moderator level")||s.includes("moderator required")||s.includes("not allowed")||s.includes("permission denied")||s.includes("only owner"))code="SS-PERM-001";
     else if(s.includes("structure of query does not match function result type"))code="SS-DB-002";
