@@ -368,7 +368,8 @@ function translateTextNode(node,l){
   if(!originalText.has(node))originalText.set(node,node.nodeValue);
   const raw=originalText.get(node),core=String(raw).trim();if(!core)return;
   const translated=l===PT?core:t(core,l);
-  if(translated!==core||l===PT)node.nodeValue=preserve(raw,translated)
+  const target=preserve(raw,translated);
+  if(node.nodeValue!==target)node.nodeValue=target
 }
 function translateAttrs(el,l){
   if(!(el instanceof Element)||el.closest("[data-no-i18n]"))return;
@@ -377,7 +378,7 @@ function translateAttrs(el,l){
     if(el.hasAttribute(attr)){
       if(!(attr in store))store[attr]=el.getAttribute(attr);
       const raw=store[attr],translated=l===PT?raw:t(raw,l);
-      el.setAttribute(attr,translated)
+      if(el.getAttribute(attr)!==translated)el.setAttribute(attr,translated)
     }
   }
 }
