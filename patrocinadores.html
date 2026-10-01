@@ -26,8 +26,9 @@ let roleLevel=0,rows=[],packageRows=[];const LEVEL={auditor:10,moderator:20,admi
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
 function toLocal(v){if(!v)return "";const d=new Date(v),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes())}
 function tierLabel(t){return ({supporter:"Apoiador",highlight:"Destaque",premium:"Premium",master:"Master"})[t]||t}
-function tierSize(t){return ({supporter:"Faixa horizontal ampla",highlight:"Bloco médio em destaque",premium:"Bloco grande de alta visibilidade",master:"Faixa principal em largura total"})[t]||""}
+function tierSize(t){return ({supporter:"Presença compacta",highlight:"Bloco médio em destaque",premium:"Bloco grande de alta visibilidade",master:"Faixa principal em largura total"})[t]||""}
 function zoneLabel(z){return ({left:"lado esquerdo",right:"lado direito",bottom:"embaixo"})[z]||z}
+function zoneHint(t){return (t==="premium"||t==="master")?"recomendado: embaixo":"recomendado: laterais"}
 async function load(){
  try{
   const db=Safety.db(),u=await Safety.requireUser();
@@ -44,7 +45,7 @@ function renderPackages(){
 function render(){
  list.innerHTML=rows.length?rows.map(s=>'<article class="sponsor-item"><div class="inline"><span class="tag '+(s.active?"ok":"danger")+'">'+(s.active?"ativo":"inativo")+'</span><span class="tag">'+esc(s.tier_label||tierLabel(s.tier))+'</span><span class="tag">'+esc(s.placement)+'</span><span class="tag">'+esc(zoneLabel(s.display_zone))+'</span><b>'+esc(s.name)+'</b></div><p>'+esc(s.headline)+'</p><p class="muted mini">Pacote: <b>'+Safety.hc(s.price_hc)+'</b> / '+s.duration_days+' dias • Prioridade: '+s.priority+(s.starts_at?' • início '+Safety.date(s.starts_at):'')+(s.ends_at?' • fim '+Safety.date(s.ends_at):'')+'</p><div class="actions"><button class="btn small" onclick="editSponsor('+s.id+')">Editar</button><button class="btn danger small" onclick="deleteSponsor('+s.id+')">Excluir</button></div></article>').join(""):'<div class="card"><p class="muted">Nenhum patrocinador cadastrado.</p></div>'
 }
-function updateTierInfo(){const p=packageRows.find(x=>x.tier===tier.value);selectedTierName.textContent=p?.label||tierLabel(tier.value);selectedTierInfo.textContent=p?Safety.hc(p.price_hc)+" por "+p.duration_days+" dias • "+tierSize(p.tier)+" • posição: "+zoneLabel(displayZone.value):tierSize(tier.value)}
+function updateTierInfo(){const p=packageRows.find(x=>x.tier===tier.value);selectedTierName.textContent=p?.label||tierLabel(tier.value);selectedTierInfo.textContent=p?Safety.hc(p.price_hc)+" por "+p.duration_days+" dias • "+tierSize(p.tier)+" • posição: "+zoneLabel(displayZone.value)+" • "+zoneHint(p.tier):tierSize(tier.value)}
 function resetForm(){form.reset();sponsorId.value="";priority.value="0";active.value="true";placement.value="general";tier.value="supporter";displayZone.value="bottom";formTitle.textContent="Novo patrocinador";updateTierInfo()}
 function editSponsor(id){const s=rows.find(x=>x.id===id);if(!s)return;sponsorId.value=s.id;name.value=s.name;headline.value=s.headline;imageUrl.value=s.image_url||"";targetUrl.value=s.target_url||"";placement.value=s.placement;displayZone.value=s.display_zone||"bottom";priority.value=s.priority;tier.value=s.tier||"supporter";active.value=String(s.active);startsAt.value=toLocal(s.starts_at);endsAt.value=toLocal(s.ends_at);formTitle.textContent="Editar patrocinador #"+s.id;updateTierInfo();scrollTo({top:0,behavior:"smooth"})}
 tier.onchange=updateTierInfo;displayZone.onchange=updateTierInfo;
