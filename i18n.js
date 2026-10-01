@@ -516,6 +516,17 @@ Object.assign(entries,{
 "Conhecer apoiador ↗":["Visit supporter ↗","Conocer patrocinador ↗","Destekçiyi gör ↗"],
 "Os anúncios ocupam espaço real no conteúdo, com tamanhos proporcionais ao pacote contratado. Nenhum formato usa pop-up, sobreposição ou interfere na navegação.":["Ads use real content space, with sizes proportional to the selected package. No format uses pop-ups, overlays, or interferes with navigation.","Los anuncios ocupan espacio real en el contenido, con tamaños proporcionales al paquete contratado. Ningún formato usa ventanas emergentes, superposiciones ni interfiere con la navegación.","Reklamlar içerikte gerçek alan kullanır ve boyutları seçilen pakete göre değişir. Hiçbir format açılır pencere, kaplama kullanmaz veya gezinmeyi engellemez."]
 });
+Object.assign(entries,{
+"Posição visual":["Visual position","Posición visual","Görsel konum"],
+"Lado esquerdo":["Left side","Lado izquierdo","Sol taraf"],
+"Lado direito":["Right side","Lado derecho","Sağ taraf"],
+"Embaixo da página":["Bottom of page","Parte inferior de la página","Sayfanın altı"],
+"Apoiadores":["Supporters","Colaboradores","Destekçiler"],
+"Apoiadores da Safety Solutions":["Safety Solutions supporters","Colaboradores de Safety Solutions","Safety Solutions destekçileri"],
+"Presença compacta":["Compact presence","Presencia compacta","Kompakt görünüm"],
+"recomendado: embaixo":["recommended: bottom","recomendado: abajo","önerilen: alt bölüm"],
+"recomendado: laterais":["recommended: sides","recomendado: laterales","önerilen: yanlar"]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
