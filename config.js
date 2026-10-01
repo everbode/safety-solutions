@@ -1,1 +1,4 @@
-window.SAFETY_CONFIG={supabaseUrl:"COLE_AQUI_SUA_URL_DO_SUPABASE",supabaseKey:"COLE_AQUI_SUA_CHAVE_PUBLICAVEL"};
+window.SAFETY_CONFIG = {
+    supabaseUrl: "https://wqgohbjikactntxstist.supabase.co",
+    supabaseKey: "sb_publishable_qJmrw_-T0jnD8dyNk1qzbA_fiToSB0e"
+};
