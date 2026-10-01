@@ -215,7 +215,7 @@ window.Safety={
 
   async initSponsors(){
     const page=(location.pathname.split("/").pop()||"").toLowerCase();
-    const noSponsorPages=new Set(["index.html","login.html","cadastro.html","admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html"]);
+    const noSponsorPages=new Set(["index.html","login.html","cadastro.html","admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html","seguranca.html"]);
     if(noSponsorPages.has(page))return;
     const placementMap={
       "dashboard.html":"dashboard","mercado.html":"market","leiloes.html":"auctions",
