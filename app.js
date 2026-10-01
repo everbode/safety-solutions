@@ -10,9 +10,10 @@ window.Safety={
     return this._db
   },
 
-  hc(v){return new Intl.NumberFormat("pt-BR").format(Number(v||0))+" HC"},
-  num(v){return new Intl.NumberFormat("pt-BR").format(Number(v||0))},
-  date(v){return v?new Date(v).toLocaleString("pt-BR"):"—"},
+  locale(){const l=window.I18N?.lang?.()||"pt";return ({pt:"pt-BR",en:"en-US",es:"es-ES",tr:"tr-TR"})[l]||"pt-BR"},
+  hc(v){return new Intl.NumberFormat(this.locale()).format(Number(v||0))+" HC"},
+  num(v){return new Intl.NumberFormat(this.locale()).format(Number(v||0))},
+  date(v){return v?new Date(v).toLocaleString(this.locale()):"—"},
 
   errorCatalog:{
     "SS-AUTH-001":{title:"Sessão expirada ou ausente",action:"Entre novamente na sua conta e repita a operação."},
@@ -77,15 +78,17 @@ window.Safety={
   formatError(value,context=""){
     const classified=this.classifyError(value);
     const item=this.errorCatalog[classified.code]||this.errorCatalog["SS-UNK-001"];
+    const tr=(v)=>window.I18N?.t?.(v)||v;
     const incident=this.incidentKey();
+    const title=tr(item.title),action=tr(item.action);
     return {
       code:classified.code,
       raw:classified.raw,
       incident,
       context,
-      title:item.title,
-      action:item.action,
-      text:"❌ "+classified.code+" — "+item.title+"\nO que fazer: "+item.action+"\nProtocolo: "+incident
+      title,
+      action,
+      text:"❌ "+classified.code+" — "+title+"\n"+tr("O que fazer:")+" "+action+"\n"+tr("Protocolo:")+" "+incident
     }
   },
 
