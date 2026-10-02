@@ -23,6 +23,7 @@ window.Safety={
     "SS-AUTH-004":{title:"Conta já cadastrada",action:"Use o login existente ou cadastre outro e-mail."},
     "SS-AUTH-005":{title:"Verificação em duas etapas necessária",action:"Conclua a verificação 2FA na área de Segurança da Conta e tente novamente."},
     "SS-ACC-001":{title:"Conta não está ativa",action:"Verifique o status da conta. Se estiver aguardando aprovação, entre em contato com a moderação."},
+    "SS-ACC-002":{title:"Exclusão automática indisponível",action:"Esta conta possui histórico comercial que precisa ser preservado. Entre em contato com a administração para tratar o encerramento da conta."},
     "SS-HC-001":{title:"HubCredit insuficiente",action:"Confira seu saldo de HC e reduza o valor da operação ou obtenha saldo suficiente antes de tentar novamente."},
     "SS-HC-002":{title:"Baú diário indisponível",action:"Aguarde o tempo indicado no painel antes de tentar abrir o baú novamente."},
     "SS-PERM-001":{title:"Permissão insuficiente",action:"Essa ação exige outro nível de acesso. Se acreditar que deveria ter permissão, envie este código à moderação."},
@@ -56,10 +57,11 @@ window.Safety={
     else if(s.includes("user already registered")||s.includes("already been registered"))code="SS-AUTH-004";
     else if(s.includes("mfa_required")||s.includes("aal2"))code="SS-AUTH-005";
     else if(s.includes("auth_required")||s.includes("jwt expired")||s.includes("session")&&s.includes("expired"))code="SS-AUTH-001";
+    else if(s.includes("commercial history")||s.includes("cannot be deleted automatically"))code="SS-ACC-002";
     else if(s.includes("account is not active")||s.includes("awaiting_verification"))code="SS-ACC-001";
     else if(s.includes("daily chest"))code="SS-HC-002";
     else if(s.includes("insufficient hubcredit")||s.includes("insufficient")&&s.includes("balance"))code="SS-HC-001";
-    else if(s.includes("insufficient moderator level")||s.includes("moderator required")||s.includes("not allowed")||s.includes("permission denied")||s.includes("only owner"))code="SS-PERM-001";
+    else if(s.includes("insufficient moderator level")||s.includes("moderator required")||s.includes("not allowed")||s.includes("permission denied")||s.includes("only owner")||s.includes("last active owner")||s.includes("moderation roles require an active account"))code="SS-PERM-001";
     else if(s.includes("structure of query does not match function result type"))code="SS-DB-002";
     else if(s.includes("failed to fetch")||s.includes("networkerror")||s.includes("network request")||s.includes("load failed"))code="SS-NET-001";
     else if(s.includes("duplicate key")||s.includes("unique constraint"))code="SS-DATA-001";
