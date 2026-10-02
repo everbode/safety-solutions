@@ -7,14 +7,14 @@ async function load(){
   list.innerHTML=rows.length?rows.map(t=>{
     let controls="";
     if(t.my_role==="buyer"&&t.status==="custody")controls='<button class="btn primary small" onclick="confirmTx('+t.id+')">✅ Confirmar e liberar</button><button class="btn danger small" onclick="dispute('+t.id+')">⚖️ Abrir disputa</button>';
-    const profile=t.counterpart_game_profile?'<a class="btn small" target="_blank" rel="noopener" href="'+t.counterpart_game_profile+'">Perfil no jogo ↗</a>':"";
+    const gameUrl=Safety.safeUrl(t.counterpart_game_profile);const profile=gameUrl?'<a class="btn small" target="_blank" rel="noopener" href="'+Safety.escapeHtml(gameUrl)+'">Perfil no jogo ↗</a>':"";
     const rate=(t.fee_rate_bps||0)/100;
     let feeLine="";
     if(t.my_role==="seller"&&t.fee_rate_bps>0){
       if(t.seller_net_amount!=null&&["completed","resolved"].includes(t.status)) feeLine='<p class="muted">Taxa Safety: '+Safety.hc(t.platform_fee)+' ('+rate.toLocaleString("pt-BR")+'%) • Líquido recebido: <b>'+Safety.hc(t.seller_net_amount)+'</b></p>';
       else feeLine='<p class="muted">Taxa prevista na conclusão: '+rate.toLocaleString("pt-BR")+'%.</p>';
     }
-    return '<article class="card"><div class="inline"><span class="tag">'+t.status+'</span><span class="muted">#'+t.id+'</span></div><h3>'+t.product+' • '+Safety.num(t.quantity)+' un.</h3><p class="muted">'+(t.my_role==="buyer"?"Vendedor: ":"Comprador: ")+t.counterpart_username+(t.counterpart_institution?' • '+t.counterpart_institution:'')+'</p><div class="stat gold">'+Safety.hc(t.amount)+'</div>'+feeLine+'<p class="muted">Criada em '+Safety.date(t.created_at)+'</p><div class="actions">'+profile+controls+'</div></article>';
+    return '<article class="card"><div class="inline"><span class="tag">'+Safety.escapeHtml(t.status)+'</span><span class="muted">#'+t.id+'</span></div><h3>'+Safety.escapeHtml(t.product)+' • '+Safety.num(t.quantity)+' un.</h3><p class="muted">'+(t.my_role==="buyer"?"Vendedor: ":"Comprador: ")+Safety.escapeHtml(t.counterpart_username)+(t.counterpart_institution?' • '+Safety.escapeHtml(t.counterpart_institution):'')+'</p><div class="stat gold">'+Safety.hc(t.amount)+'</div>'+feeLine+'<p class="muted">Criada em '+Safety.date(t.created_at)+'</p><div class="actions">'+profile+controls+'</div></article>';
   }).join(""):'<div class="card"><p class="muted">Nenhuma transação registrada.</p></div>'
  }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.msg(msg,"❌ "+e.message,"error")}
 }
