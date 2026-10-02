@@ -554,6 +554,10 @@ Object.assign(entries,{
 "O baú diário está temporariamente desativado.":["The daily chest is temporarily disabled.","El cofre diario está temporalmente desactivado.","Günlük sandık geçici olarak devre dışı."],
 "Sua conta ainda não pode abrir o baú.":["Your account cannot open the chest yet.","Tu cuenta aún no puede abrir el cofre.","Hesabınız henüz sandığı açamıyor."]
 });
+Object.assign(entries,{
+"Exclusão automática indisponível":["Automatic deletion unavailable","Eliminación automática no disponible","Otomatik silme kullanılamıyor"],
+"Esta conta possui histórico comercial que precisa ser preservado. Entre em contato com a administração para tratar o encerramento da conta.":["This account has commercial history that must be preserved. Contact administration to arrange account closure.","Esta cuenta tiene historial comercial que debe conservarse. Contacta con la administración para gestionar el cierre de la cuenta.","Bu hesabın korunması gereken ticari geçmişi var. Hesabın kapatılması için yönetimle iletişime geçin."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
