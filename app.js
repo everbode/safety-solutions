@@ -14,6 +14,7 @@ window.Safety={
   hc(v){return new Intl.NumberFormat(this.locale()).format(Number(v||0))+" HC"},
   num(v){return new Intl.NumberFormat(this.locale()).format(Number(v||0))},
   date(v){return v?new Date(v).toLocaleString(this.locale()):"—"},
+  escapeHtml(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))},
 
   errorCatalog:{
     "SS-AUTH-001":{title:"Sessão expirada ou ausente",action:"Entre novamente na sua conta e repita a operação."},
