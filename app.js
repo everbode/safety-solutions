@@ -61,6 +61,7 @@ window.Safety={
     else if(s.includes("account is not active")||s.includes("awaiting_verification"))code="SS-ACC-001";
     else if(s.includes("daily chest"))code="SS-HC-002";
     else if(s.includes("insufficient hubcredit")||s.includes("insufficient")&&s.includes("balance"))code="SS-HC-001";
+    else if(s.includes("rate_limited")||s.includes("too many")&&s.includes("actions"))code="SS-RATE-001";
     else if(s.includes("insufficient moderator level")||s.includes("moderator required")||s.includes("not allowed")||s.includes("permission denied")||s.includes("only owner")||s.includes("last active owner")||s.includes("moderation roles require an active account"))code="SS-PERM-001";
     else if(s.includes("structure of query does not match function result type"))code="SS-DB-002";
     else if(s.includes("failed to fetch")||s.includes("networkerror")||s.includes("network request")||s.includes("load failed"))code="SS-NET-001";
@@ -157,9 +158,21 @@ window.Safety={
 
   safeUrl(v){try{const u=new URL(v,location.href);if(u.protocol==="https:")return u.href;const local=["localhost","127.0.0.1"].includes(location.hostname);return local&&u.protocol==="http:"?u.href:null}catch{return null}},
 
+  async initAuthGuard(){
+    const page=(location.pathname.split("/").pop()||"index.html").toLowerCase();
+    const publicPages=new Set(["index.html","login.html","cadastro.html","recuperar-senha.html"]);
+    if(publicPages.has(page))return;
+    let db;try{db=this.db()}catch{return}
+    db.auth.onAuthStateChange((event,session)=>{
+      if(event==="SIGNED_OUT"&&!session){
+        location.replace("login.html")
+      }
+    })
+  },
+
   async initGlobalNav(){
     const page=(location.pathname.split("/").pop()||"index.html").toLowerCase();
-    const publicPages=new Set(["index.html","login.html","cadastro.html"]);
+    const publicPages=new Set(["index.html","login.html","cadastro.html","recuperar-senha.html"]);
     if(publicPages.has(page))return;
 
     const nav=document.querySelector(".topbar .nav");
@@ -221,7 +234,7 @@ window.Safety={
 
   async initSponsors(){
     const page=(location.pathname.split("/").pop()||"").toLowerCase();
-    const noSponsorPages=new Set(["index.html","login.html","cadastro.html","admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html","seguranca.html","saude.html"]);
+    const noSponsorPages=new Set(["index.html","login.html","cadastro.html","recuperar-senha.html","admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html","seguranca.html","saude.html"]);
     if(noSponsorPages.has(page))return;
     const placementMap={
       "dashboard.html":"dashboard","mercado.html":"market","leiloes.html":"auctions",
@@ -320,4 +333,4 @@ window.addEventListener("unhandledrejection",event=>{
   if(event?.reason)window.Safety.reportError(window.Safety.formatError(event.reason,"unhandled-promise"))
 });
 
-document.addEventListener("DOMContentLoaded",()=>{window.Safety.initGlobalNav().catch(()=>{});window.Safety.initSponsors().catch(()=>{})});
+document.addEventListener("DOMContentLoaded",()=>{window.Safety.initAuthGuard().catch(()=>{});window.Safety.initGlobalNav().catch(()=>{});window.Safety.initSponsors().catch(()=>{})});
