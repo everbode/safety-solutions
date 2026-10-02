@@ -15,7 +15,13 @@ async function load(){
  try{
   const db=Safety.db();me=await Safety.requireUser();targetId=new URLSearchParams(location.search).get("id");if(!targetId)throw new Error("Perfil não informado");
   const[{data:p,error},{data:ps,error:pe},{data:links}]=await Promise.all([db.rpc("business_profile",{p_profile_id:targetId}),db.rpc("business_partners",{p_profile_id:targetId}),db.rpc("my_partnerships")]);
-  if(error)throw error;if(pe)throw pe;profile=(p||[])[0];if(!profile)throw new Error("Perfil comercial indisponível");
+  if(error)throw error;if(pe)throw pe;profile=(p||[])[0];
+  if(!profile){
+    msg.className="notice";
+    msg.innerHTML="<b>Perfil comercial indisponível</b><br><span class=\"muted\">Esta conta não está ativa, foi suspensa ou o perfil deixou de estar disponível na rede comercial.</span><div class=\"actions\"><a class=\"btn small\" href=\"reputacao.html\">Voltar ao diretório</a><a class=\"btn small\" href=\"dashboard.html\">Ir ao painel</a></div>";
+    msg.classList.remove("hidden");
+    return
+  }
   myLinks=links||[];content.classList.remove("hidden");render(profile,ps||[]);
  }catch(e){if(e.message==="CONFIG_PENDENTE")Safety.configNotice(msg);else if(e.message!=="AUTH_REQUIRED")Safety.errorMsg(msg,e,"business-profile-load")}
 }
