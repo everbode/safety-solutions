@@ -180,7 +180,7 @@ function renderTransactions(){
  transactionsList.innerHTML=rows.length?rows.map(txCard).join(""):empty("Nenhuma transação encontrada.");
 }
 function disputeCard(x){
- return '<div class="card compact"><div class="inline">'+tag(x.status)+'<b>Disputa #'+x.id+'</b></div><p>'+esc(x.reason)+'</p><p class="muted">Transação #'+x.transaction_id+' • '+Safety.hc(x.amount)+'<br>'+esc(x.buyer_username)+' ↔ '+esc(x.seller_username)+'</p>'+(can(20)?'<div class="actions"><button class="btn primary small" onclick="resolveDispute('+x.id+',\'seller\')">Pagar vendedor</button><button class="btn small" onclick="resolveDispute('+x.id+',\'buyer\')">Reembolsar comprador</button></div>':'<p class="muted mini">Somente leitura neste nível.</p>')+'</div>'
+ return '<div class="card compact"><div class="inline">'+tag(x.status)+'<b>Disputa #'+x.id+'</b></div><p>'+esc(x.reason)+'</p><p class="muted">Transação #'+x.transaction_id+' • '+Safety.hc(x.amount)+'<br>'+esc(x.buyer_username)+' ↔ '+esc(x.seller_username)+'</p>'+(can(30)?'<div class="actions"><button class="btn primary small" onclick="resolveDispute('+x.id+',\'seller\')">Pagar vendedor</button><button class="btn small" onclick="resolveDispute('+x.id+',\'buyer\')">Reembolsar comprador</button></div>':'<p class="muted mini">Resultado financeiro exige Administrador ou Proprietário.</p>')+'</div>'
 }
 
 function renderMarket(){
