@@ -355,6 +355,83 @@ window.Safety={
       bottom.append(label,desktop,mobile);
       main.appendChild(bottom);
 
+      // On phones, a single showcase becomes a compact persistent brand strip
+      // only after the showcase leaves the viewport. No timer or automatic slides.
+      const phoneAds=[...bottomAds,...leftAds,...rightAds].filter((ad,i,all)=>
+        all.findIndex(other=>other.id===ad.id)===i);
+      const items=phoneAds.length?phoneAds:[null];
+      const showcase=document.createElement("section");
+      showcase.className="sponsor-mobile-showcase";
+      showcase.setAttribute("aria-label","Publicidade");
+      const heading=document.createElement("div");heading.className="sponsor-mobile-heading";
+      const caption=document.createElement("span");caption.className="sponsor-label";caption.textContent="Publicidade";
+      const paging=document.createElement("span");paging.className="sponsor-mobile-paging";
+      heading.append(caption,paging);
+      const track=document.createElement("div");track.className="sponsor-mobile-track";
+      track.setAttribute("aria-label","Anúncios — deslize para navegar");
+      items.forEach(ad=>{
+        const card=ad?makeCard(ad):makePlaceholder();
+        if(!ad){const img=card.querySelector("img");img.src="assets/anuncie-aqui-mobile.svg";img.width=720;img.height=280;img.alt="Sua marca em destaque. Anuncie aqui na Safety Solutions."}
+        track.appendChild(card)
+      });
+      showcase.append(heading,track);
+      const title=main.querySelector(":scope > .page-title");
+      if(title)title.after(showcase);else main.prepend(showcase);
+
+      const dock=document.createElement("aside");dock.className="sponsor-mobile-dock";dock.hidden=true;
+      dock.setAttribute("aria-label","Publicidade");
+      const dockBody=document.createElement("div");dockBody.className="sponsor-dock-body";
+      const navigation=document.createElement("div");navigation.className="sponsor-dock-nav";
+      let index=0;
+      const renderDock=()=>{
+        const ad=items[index];dockBody.replaceChildren();
+        const href=ad?this.safeUrl(ad.target_url):null;
+        const content=document.createElement(href?"a":"div");content.className="sponsor-dock-content";
+        if(href){content.href=href;content.target="_blank";content.rel="noopener sponsored"}
+        const image=document.createElement("div");image.className="sponsor-dock-image";
+        const src=ad?this.safeUrl(ad.image_url):null;
+        if(src){const img=document.createElement("img");img.src=src;img.alt="";image.appendChild(img)}
+        else {image.textContent=ad?(ad.name||"S").slice(0,1).toUpperCase():"↗"}
+        const copy=document.createElement("div");copy.className="sponsor-dock-copy";
+        const disclosure=document.createElement("span");disclosure.className="sponsor-dock-label";disclosure.textContent="Publicidade";
+        const name=document.createElement("strong");name.textContent=ad?.name||"Sua marca aqui";
+        const line=document.createElement("span");line.className="sponsor-dock-headline";line.textContent=ad?.headline||"Anuncie na Safety Solutions";
+        copy.append(disclosure,name,line);content.append(image,copy);
+        if(href){const arrow=document.createElement("span");arrow.className="sponsor-dock-cta";arrow.textContent="↗";arrow.setAttribute("aria-hidden","true");content.appendChild(arrow)}
+        dockBody.appendChild(content);
+        paging.textContent=items.length>1?(index+1)+" / "+items.length+" · Deslize":"";
+      };
+      if(items.length>1){
+        for(const [label,step,glyph] of [["Anúncio anterior",-1,"‹"],["Próximo anúncio",1,"›"]]){
+          const button=document.createElement("button");button.type="button";button.setAttribute("aria-label",label);button.textContent=glyph;
+          button.addEventListener("click",()=>{
+            index=(index+step+items.length)%items.length;renderDock();
+            track.scrollTo({left:track.children[index].offsetLeft-track.children[0].offsetLeft,behavior:"smooth"})
+          });navigation.appendChild(button)
+        }
+      }
+      dock.append(dockBody,navigation);document.body.appendChild(dock);renderDock();
+      track.addEventListener("scroll",()=>{
+        const width=track.children[0].getBoundingClientRect().width+12;
+        const next=Math.max(0,Math.min(items.length-1,Math.round(track.scrollLeft/width)));
+        if(next!==index){index=next;renderDock()}
+      },{passive:true});
+      const phone=matchMedia("(max-width:900px)");
+      let showcasePast=false;
+      const syncDock=()=>{
+        dock.hidden=!(phone.matches&&showcasePast);
+        document.body.classList.toggle("sponsor-dock-visible",!dock.hidden)
+      };
+      if("IntersectionObserver" in window){
+        const stickyHeight=document.querySelector(".topbar")?.getBoundingClientRect().height||72;
+        new IntersectionObserver(([entry])=>{
+          showcasePast=!entry.isIntersecting&&entry.boundingClientRect.bottom<=stickyHeight;
+          syncDock()
+        },{rootMargin:"-"+stickyHeight+"px 0px 0px 0px",threshold:0}).observe(showcase)
+      }
+      phone.addEventListener("change",syncDock);
+
+
     }catch(e){
       this.reportError(this.formatError(e,"sponsor-layout"))
     }
