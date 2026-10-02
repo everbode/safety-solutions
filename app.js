@@ -147,8 +147,20 @@ window.Safety={
     el.classList.remove("hidden")
   },
 
-  async user(){const{data:{user}}=await this.db().auth.getUser();return user},
-  async requireUser(){const u=await this.user();if(!u){location.href="login.html";throw new Error("AUTH_REQUIRED")}return u},
+  async user(){
+    const{data,error}=await this.db().auth.getUser();
+    if(error){
+      const s=String(error.message||error).toLowerCase();
+      if(s.includes("jwt")||s.includes("session")||s.includes("auth session missing"))return null;
+      throw error
+    }
+    return data?.user||null
+  },
+  async requireUser(){
+    const u=await this.user();
+    if(!u){location.replace("login.html");throw new Error("AUTH_REQUIRED")}
+    return u
+  },
   async logout(){await this.db().auth.signOut({scope:"local"});location.href="index.html"},
 
   configNotice(el){
@@ -163,8 +175,10 @@ window.Safety={
     const publicPages=new Set(["index.html","login.html","cadastro.html","recuperar-senha.html"]);
     if(publicPages.has(page))return;
     let db;try{db=this.db()}catch{return}
-    db.auth.onAuthStateChange((event,session)=>{
-      if(event==="SIGNED_OUT"&&!session){
+    const{data:{session}}=await db.auth.getSession();
+    if(!session){location.replace("login.html");return}
+    db.auth.onAuthStateChange((event,nextSession)=>{
+      if(event==="SIGNED_OUT"&&!nextSession){
         location.replace("login.html")
       }
     })
