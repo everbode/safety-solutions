@@ -572,6 +572,26 @@ Object.assign(entries,{
 "Muitas ações em pouco tempo":["Too many actions in a short time","Demasiadas acciones en poco tiempo","Kısa sürede çok fazla işlem"],
 "Aguarde alguns minutos antes de repetir muitas operações semelhantes. O limite existe para proteger a beta contra automação e spam.":["Wait a few minutes before repeating many similar operations. This limit protects the beta from automation and spam.","Espera unos minutos antes de repetir muchas operaciones similares. Este límite protege la beta contra automatización y spam.","Benzer işlemleri çok sık tekrarlamadan önce birkaç dakika bekleyin. Bu sınır betayı otomasyon ve spamden korur."]
 });
+Object.assign(entries,{
+"Recuperar senha":["Recover password","Recuperar contraseña","Şifreyi kurtar"],
+"RECUPERAÇÃO DE ACESSO":["ACCESS RECOVERY","RECUPERACIÓN DE ACCESO","ERİŞİM KURTARMA"],
+"Solicite um link seguro para redefinir sua senha. Por privacidade, não informamos se o e-mail está cadastrado.":["Request a secure link to reset your password. For privacy, we do not reveal whether the email is registered.","Solicita un enlace seguro para restablecer tu contraseña. Por privacidad, no informamos si el correo está registrado.","Şifrenizi sıfırlamak için güvenli bir bağlantı isteyin. Gizlilik nedeniyle e-postanın kayıtlı olup olmadığını belirtmeyiz."],
+"Enviar link de recuperação":["Send recovery link","Enviar enlace de recuperación","Kurtarma bağlantısı gönder"],
+"Esqueci minha senha":["I forgot my password","Olvidé mi contraseña","Şifremi unuttum"],
+"Defina uma nova senha":["Set a new password","Define una nueva contraseña","Yeni bir şifre belirle"],
+"Use pelo menos 10 caracteres e evite reutilizar senhas.":["Use at least 10 characters and avoid reusing passwords.","Usa al menos 10 caracteres y evita reutilizar contraseñas.","En az 10 karakter kullanın ve şifreleri yeniden kullanmaktan kaçının."],
+"Nova senha":["New password","Nueva contraseña","Yeni şifre"],
+"Confirmar nova senha":["Confirm new password","Confirmar nueva contraseña","Yeni şifreyi doğrula"],
+"Salvar nova senha":["Save new password","Guardar nueva contraseña","Yeni şifreyi kaydet"],
+"Voltar ao login":["Back to login","Volver al inicio de sesión","Girişe dön"],
+"Link de recuperação inválido ou expirado":["Invalid or expired recovery link","Enlace de recuperación inválido o expirado","Geçersiz veya süresi dolmuş kurtarma bağlantısı"],
+"Solicite um novo link em Esqueci minha senha e use somente o e-mail mais recente recebido.":["Request a new link from Forgot my password and use only the most recent email received.","Solicita un nuevo enlace en Olvidé mi contraseña y usa solamente el correo más reciente recibido.","Şifremi unuttum bölümünden yeni bir bağlantı isteyin ve yalnızca en son gelen e-postayı kullanın."],
+"Nova senha recusada":["New password rejected","Nueva contraseña rechazada","Yeni şifre reddedildi"],
+"Use uma senha com pelo menos 10 caracteres e diferente da senha anterior.":["Use a password with at least 10 characters and different from the previous password.","Usa una contraseña de al menos 10 caracteres y distinta de la anterior.","En az 10 karakterli ve önceki şifreden farklı bir şifre kullanın."],
+"A nova senha deve ter pelo menos 10 caracteres.":["The new password must be at least 10 characters long.","La nueva contraseña debe tener al menos 10 caracteres.","Yeni şifre en az 10 karakter olmalıdır."],
+"As senhas não coincidem.":["Passwords do not match.","Las contraseñas no coinciden.","Şifreler eşleşmiyor."],
+"O link de recuperação expirou ou já foi utilizado. Solicite um novo link.":["The recovery link has expired or has already been used. Request a new link.","El enlace de recuperación expiró o ya fue utilizado. Solicita un nuevo enlace.","Kurtarma bağlantısının süresi dolmuş veya bağlantı zaten kullanılmış. Yeni bir bağlantı isteyin."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
