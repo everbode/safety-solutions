@@ -202,7 +202,7 @@ window.Safety={
       const{data:mod}=await db.from("moderators").select("role").eq("user_id",user.id).maybeSingle();
       if(!mod)return;
 
-      const adminPages=["admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html"];
+      const adminPages=["admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html","saude.html"];
       const adminActive=adminPages.includes(page);
       const admin=document.createElement("details");
       admin.className="nav-menu admin-menu"+(adminActive?" active":"");
@@ -212,6 +212,7 @@ window.Safety={
         a("patrocinadores.html","Patrocinadores")+
         a("erros.html","Erros")+
         a("admin-alertas.html","Safety Alert Admin")+
+        a("saude.html","Saúde Beta")+
       '</div>';
       const logout=links.querySelector(".global-logout");
       links.insertBefore(admin,logout)
@@ -220,7 +221,7 @@ window.Safety={
 
   async initSponsors(){
     const page=(location.pathname.split("/").pop()||"").toLowerCase();
-    const noSponsorPages=new Set(["index.html","login.html","cadastro.html","admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html","seguranca.html"]);
+    const noSponsorPages=new Set(["index.html","login.html","cadastro.html","admin.html","tesouraria.html","patrocinadores.html","erros.html","admin-alertas.html","seguranca.html","saude.html"]);
     if(noSponsorPages.has(page))return;
     const placementMap={
       "dashboard.html":"dashboard","mercado.html":"market","leiloes.html":"auctions",
