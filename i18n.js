@@ -568,6 +568,10 @@ Object.assign(entries,{
 "Operações":["Operations","Operaciones","Operasyonlar"],
 "Verificação externa ainda necessária:":["External verification still required:","Aún se requiere verificación externa:","Harici doğrulama hâlâ gerekli:"]
 });
+Object.assign(entries,{
+"Muitas ações em pouco tempo":["Too many actions in a short time","Demasiadas acciones en poco tiempo","Kısa sürede çok fazla işlem"],
+"Aguarde alguns minutos antes de repetir muitas operações semelhantes. O limite existe para proteger a beta contra automação e spam.":["Wait a few minutes before repeating many similar operations. This limit protects the beta from automation and spam.","Espera unos minutos antes de repetir muchas operaciones similares. Este límite protege la beta contra automatización y spam.","Benzer işlemleri çok sık tekrarlamadan önce birkaç dakika bekleyin. Bu sınır betayı otomasyon ve spamden korur."]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
