@@ -606,6 +606,33 @@ Object.assign(entries,{
 "Entre em contato com a moderação pelos canais da Safety Solutions no jogo. A recuperação depende da verificação da titularidade da conta.":["Contact moderation through Safety Solutions channels in the game. Recovery requires verifying account ownership.","Contacta con moderación por los canales de Safety Solutions en el juego. La recuperación requiere verificar la titularidad.","Oyundaki Safety Solutions kanallarından moderatörle iletişime geçin. Kurtarma için hesap sahipliği doğrulanmalıdır."],
 "Informe apenas seu nome de usuário. Nunca envie sua senha ou códigos 2FA.":["Provide only your username. Never send your password or 2FA codes.","Indica solo tu usuario. Nunca envíes tu contraseña ni códigos 2FA.","Yalnızca kullanıcı adınızı belirtin. Şifrenizi veya 2FA kodlarınızı asla göndermeyin."]
 });
+Object.assign(entries,{
+"Menu":["Menu","Menú","Menü"],
+"Criar nova oferta":["Create new listing","Crear nueva oferta","Yeni ilan oluştur"],
+"Menu principal":["Main menu","Menú principal","Ana menü"],
+"Acessos rápidos":["Quick navigation","Accesos rápidos","Hızlı erişim"],
+"Tabela com rolagem horizontal":["Horizontally scrollable table","Tabla con desplazamiento horizontal","Yatay kaydırılabilir tablo"],
+"Ativa":["Active","Activa","Aktif"],
+"Suspensa":["Suspended","Suspendida","Askıya alındı"],
+"Aguardando aprovação":["Awaiting approval","Pendiente de aprobación","Onay bekleniyor"],
+"Disponível":["Available","Disponible","Mevcut"],
+"Em negociação":["In negotiation","En negociación","Müzakere aşamasında"],
+"Pendente":["Pending","Pendiente","Beklemede"],
+"Concluída":["Completed","Completada","Tamamlandı"],
+"Cancelada":["Cancelled","Cancelada","İptal edildi"],
+"Em disputa":["Disputed","En disputa","İtirazlı"],
+"Resolvida":["Resolved","Resuelta","Çözüldü"],
+"Em custódia":["In escrow","En custodia","Emanette"],
+"Aguardando confirmação":["Awaiting confirmation","Pendiente de confirmación","Onay bekleniyor"],
+"Aberta":["Open","Abierta","Açık"],
+"Aceita":["Accepted","Aceptada","Kabul edildi"],
+"Recusada":["Rejected","Rechazada","Reddedildi"],
+"Expirada":["Expired","Expirada","Süresi doldu"],
+"Indústria":["Industry","Industria","Sanayi"],
+"Revendedora":["Reseller","Revendedora","Satıcı"],
+"Financeira":["Financial institution","Institución financiera","Finans kurumu"],
+"Governo":["Government","Gobierno","Hükümet"]
+});
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
 const locale={pt:"pt-BR",en:"en",es:"es",tr:"tr"};
