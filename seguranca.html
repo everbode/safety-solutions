@@ -51,7 +51,7 @@ function renderMfa(){
    mfaCurrent.innerHTML='<span class="tag warn">2FA inativo</span><h3>Adicione um aplicativo autenticador</h3><p class="muted">Depois de ativado, novos logins pedirão também um código temporário.</p><button class="btn primary" id="startEnroll">Ativar 2FA</button>';
    document.getElementById("startEnroll").onclick=startEnrollment;return
  }
- const factors=verifiedFactors.map((f,i)=>'<div class="factor"><div class="inline"><span class="tag ok">verificado</span><b>'+(f.friendly_name||("Autenticador "+(i+1)))+'</b></div><p class="muted mini">Tipo: '+f.factor_type+'</p><button class="btn danger small" onclick="removeFactor(\''+f.id+'\')">Remover</button></div>').join("");
+ const factors=verifiedFactors.map((f,i)=>'<div class="factor"><div class="inline"><span class="tag ok">verificado</span><b>'+Safety.escapeHtml(f.friendly_name||("Autenticador "+(i+1)))+'</b></div><p class="muted mini">Tipo: '+Safety.escapeHtml(f.factor_type)+'</p><button class="btn danger small" onclick="removeFactor(\''+f.id+'\')">Remover</button></div>').join("");
  const needsVerify=aal.currentLevel!=="aal2";
  mfaCurrent.innerHTML='<span class="tag ok">2FA ativo</span><h3>'+verifiedFactors.length+' fator(es) verificado(s)</h3>'+(needsVerify?'<div class="notice"><b>Confirme esta sessão</b><p class="muted">Digite um código do seu autenticador para elevar esta sessão para AAL2.</p><div class="inline"><input id="sessionCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="000000" style="max-width:180px"><button class="btn primary" id="verifySession">Confirmar sessão</button></div></div>':'<div class="notice success">✅ Esta sessão já está confirmada com 2FA.</div>')+'<div class="factor-list">'+factors+'</div><div class="actions"><button class="btn" id="addAnother">Adicionar outro autenticador</button></div>';
  if(needsVerify)document.getElementById("verifySession").onclick=verifyCurrentSession;
@@ -112,7 +112,7 @@ disablePolicy.onclick=async()=>{
  try{const{error}=await db.rpc("owner_set_admin_mfa_requirement",{p_enabled:false,p_min_level:Number(policyLevel.value)});if(error)throw error;Safety.msg(msg,"✅ Exigência administrativa de 2FA desativada.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"disable-admin-mfa")}
 };
 function renderHistory(rows){
- history.innerHTML=rows.length?rows.map(e=>'<article class="history-item"><div class="inline"><b>'+eventLabel(e.event_type)+'</b><span class="muted right">'+Safety.date(e.created_at)+'</span></div>'+(e.details?.note?'<p class="muted">'+String(e.details.note).replace(/[<>]/g,"")+'</p>':'')+(e.details?.user_agent?'<p class="muted mini device">'+String(e.details.user_agent).replace(/[<>]/g,"")+'</p>':'')+'</article>').join(""):'<div class="card"><p class="muted">Nenhum evento de segurança registrado ainda.</p></div>'
+ history.innerHTML=rows.length?rows.map(e=>'<article class="history-item"><div class="inline"><b>'+eventLabel(e.event_type)+'</b><span class="muted right">'+Safety.date(e.created_at)+'</span></div>'+(e.details?.note?'<p class="muted">'+Safety.escapeHtml(e.details.note)+'</p>':'')+(e.details?.user_agent?'<p class="muted mini device">'+Safety.escapeHtml(e.details.user_agent)+'</p>':'')+'</article>').join(""):'<div class="card"><p class="muted">Nenhum evento de segurança registrado ainda.</p></div>'
 }
 async function init(){
  try{
