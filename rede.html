@@ -7,7 +7,7 @@
 <script>
 let me=null,links=[],profiles=[];
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
-function logo(p){const u=Safety.safeUrl(p.logo_url||p.other_logo_url);return u?'<img class="net-logo" src="'+u+'" alt="" loading="lazy">':'<div class="net-logo" style="display:grid;place-items:center;color:var(--gold);font-weight:900">'+esc((p.institution||p.country||p.other_institution||p.other_country||p.username||p.other_username||"S").slice(0,1).toUpperCase())+'</div>'}
+function logo(p){const u=Safety.safeUrl(p.logo_url||p.other_logo_url);return u?'<img class="net-logo" src="'+Safety.escapeHtml(u)+'" alt="" loading="lazy">':'<div class="net-logo" style="display:grid;place-items:center;color:var(--gold);font-weight:900">'+esc((p.institution||p.country||p.other_institution||p.other_country||p.username||p.other_username||"S").slice(0,1).toUpperCase())+'</div>'}
 function statusText(s){return ({pending:"pendente",accepted:"confirmada",rejected:"rejeitada",cancelled:"encerrada"})[s]||s}
 async function load(){
  try{
