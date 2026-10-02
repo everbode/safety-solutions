@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="styles.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <script src="config.js"></script>
-<script src="app.js"></script>
-<script src="i18n.js"></script>
+<script src="app.js?v=username-20261002"></script>
+<script src="i18n.js?v=username-20261002"></script>
 </head>
 <body>
 <header class="topbar"><div class="container nav"><a class="brand" href="index.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="login.html">Entrar</a></div></header>
@@ -16,14 +16,9 @@
 <div class="form-card panel" style="max-width:540px">
 <span class="eyebrow">RECUPERAÇÃO DE ACESSO</span>
 <h1>🔑 Recuperar senha</h1>
-<p class="muted">Solicite um link seguro para redefinir sua senha. Por privacidade, não informamos se o e-mail está cadastrado.</p>
+<p class="muted">O acesso usa nome de usuário e senha, sem e-mail.</p>
 <div id="msg" class="notice hidden"></div>
-
-<form id="requestForm">
-<label>E-mail</label>
-<input id="email" type="email" autocomplete="email" required>
-<button class="btn primary" id="requestBtn" type="submit" style="width:100%;margin-top:18px">Enviar link de recuperação</button>
-</form>
+<div id="requestForm" class="notice"><b>Precisa recuperar o acesso?</b><p>Entre em contato com a moderação pelos canais da Safety Solutions no jogo. A recuperação depende da verificação da titularidade da conta.</p><p class="muted">Informe apenas seu nome de usuário. Nunca envie sua senha ou códigos 2FA.</p></div>
 
 <form id="updateForm" class="hidden">
 <div class="notice"><b>Defina uma nova senha</b><p class="muted">Use pelo menos 10 caracteres e evite reutilizar senhas.</p></div>
@@ -64,23 +59,9 @@ db.auth.onAuthStateChange((event,session)=>{
     const{data,error}=await db.auth.getSession();
     if(error)throw error;
     if(data?.session)showUpdate();
-    else Safety.msg(msg,"O link de recuperação expirou ou já foi utilizado. Solicite um novo link.","error");
+    else Safety.msg(msg,"O link de recuperação expirou ou já foi utilizado. Entre em contato com a moderação.","error");
   }catch(e){Safety.errorMsg(msg,e,"password-recovery-session")}
 })();
-
-requestForm.addEventListener("submit",async e=>{
-  e.preventDefault();
-  if(requestForm.dataset.submitting==="1")return;
-  requestForm.dataset.submitting="1";
-  requestBtn.disabled=true;
-  try{
-    const{error}=await db.auth.resetPasswordForEmail(email.value.trim(),{redirectTo:redirectUrl()});
-    if(error)throw error;
-    email.value="";
-    Safety.msg(msg,"✅ Se existir uma conta com esse e-mail, enviaremos um link de recuperação. Verifique também a caixa de spam.","success");
-  }catch(e){Safety.errorMsg(msg,e,"password-recovery-request")}
-  finally{delete requestForm.dataset.submitting;requestBtn.disabled=false}
-});
 
 updateForm.addEventListener("submit",async e=>{
   e.preventDefault();

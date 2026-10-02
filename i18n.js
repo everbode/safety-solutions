@@ -593,6 +593,19 @@ Object.assign(entries,{
 "O link de recuperação expirou ou já foi utilizado. Solicite um novo link.":["The recovery link has expired or has already been used. Request a new link.","El enlace de recuperación expiró o ya fue utilizado. Solicita un nuevo enlace.","Kurtarma bağlantısının süresi dolmuş veya bağlantı zaten kullanılmış. Yeni bir bağlantı isteyin."]
 });
 const index={en:0,es:1,tr:2};
+Object.assign(entries,{
+"Espaços e maiúsculas são ignorados. Use letras sem acentos, números, ponto, hífen ou sublinhado.":["Spaces and letter case are ignored. Use letters without accents, numbers, periods, hyphens or underscores.","Se ignoran espacios y mayúsculas. Usa letras sin acentos, números, punto, guion o guion bajo.","Boşluklar ve büyük/küçük harf farkı yok sayılır. Aksansız harf, sayı, nokta, tire veya alt çizgi kullanın."],
+"Confira o nome de usuário e a senha. Espaços e maiúsculas são ignorados no usuário.":["Check your username and password. Spaces and letter case are ignored in usernames.","Comprueba el usuario y la contraseña. Se ignoran espacios y mayúsculas en el usuario.","Kullanıcı adı ve şifrenizi kontrol edin. Kullanıcı adında boşluklar ve harf büyüklüğü yok sayılır."],
+"Use o login existente ou escolha outro nome de usuário.":["Use the existing login or choose another username.","Usa la cuenta existente o elige otro nombre de usuario.","Mevcut hesabı kullanın veya başka bir kullanıcı adı seçin."],
+"Conta criada. Entre com seu usuário e senha e contate a moderação para solicitar a aprovação da sua conta.":["Account created. Sign in with your username and password, then contact moderation for approval.","Cuenta creada. Entra con usuario y contraseña y contacta con moderación para solicitar aprobación.","Hesap oluşturuldu. Kullanıcı adı ve şifrenizle giriş yapın, ardından onay için moderatörle iletişime geçin."],
+"Conta criada. Você já pode entrar com seu usuário e senha.":["Account created. You can now sign in with your username and password.","Cuenta creada. Ya puedes entrar con tu usuario y contraseña.","Hesap oluşturuldu. Artık kullanıcı adı ve şifrenizle giriş yapabilirsiniz."],
+"Seu nome de usuário de acesso é permanente.":["Your login username is permanent.","Tu nombre de usuario de acceso es permanente.","Giriş kullanıcı adınız kalıcıdır."],
+"Acesso por usuário":["Username sign-in","Acceso por usuario","Kullanıcı adıyla giriş"],
+"O acesso usa nome de usuário e senha, sem e-mail.":["Sign-in uses a username and password, without email.","El acceso usa usuario y contraseña, sin correo.","Giriş, e-posta olmadan kullanıcı adı ve şifreyle yapılır."],
+"Precisa recuperar o acesso?":["Need to recover access?","¿Necesitas recuperar el acceso?","Erişiminizi kurtarmanız mı gerekiyor?"],
+"Entre em contato com a moderação pelos canais da Safety Solutions no jogo. A recuperação depende da verificação da titularidade da conta.":["Contact moderation through Safety Solutions channels in the game. Recovery requires verifying account ownership.","Contacta con moderación por los canales de Safety Solutions en el juego. La recuperación requiere verificar la titularidad.","Oyundaki Safety Solutions kanallarından moderatörle iletişime geçin. Kurtarma için hesap sahipliği doğrulanmalıdır."],
+"Informe apenas seu nome de usuário. Nunca envie sua senha ou códigos 2FA.":["Provide only your username. Never send your password or 2FA codes.","Indica solo tu usuario. Nunca envíes tu contraseña ni códigos 2FA.","Yalnızca kullanıcı adınızı belirtin. Şifrenizi veya 2FA kodlarınızı asla göndermeyin."]
+});
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
 const locale={pt:"pt-BR",en:"en",es:"es",tr:"tr"};

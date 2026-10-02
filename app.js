@@ -10,6 +10,17 @@ window.Safety={
     return this._db
   },
 
+  async usernameAuth(action,payload={}){
+    const {data,error}=await this.db().functions.invoke("safety-auth",{body:{action,...payload}});
+    if(error){
+      let detail;
+      try{detail=await error.context.json()}catch{}
+      throw new Error(detail?.error||"Não foi possível concluir a solicitação. Tente novamente.");
+    }
+    if(data?.error)throw new Error(data.error);
+    return data;
+  },
+
   locale(){const l=window.I18N?.lang?.()||"pt";return ({pt:"pt-BR",en:"en-US",es:"es-ES",tr:"tr-TR"})[l]||"pt-BR"},
   hc(v){return new Intl.NumberFormat(this.locale()).format(Number(v||0))+" HC"},
   num(v){return new Intl.NumberFormat(this.locale()).format(Number(v||0))},
@@ -18,9 +29,9 @@ window.Safety={
 
   errorCatalog:{
     "SS-AUTH-001":{title:"Sessão expirada ou ausente",action:"Entre novamente na sua conta e repita a operação."},
-    "SS-AUTH-002":{title:"Login inválido",action:"Confira o e-mail e a senha. Se necessário, tente entrar novamente com os dados corretos."},
+    "SS-AUTH-002":{title:"Login inválido",action:"Confira o nome de usuário e a senha. Espaços e maiúsculas são ignorados no usuário."},
     "SS-AUTH-003":{title:"E-mail ainda não confirmado",action:"Confirme o e-mail da conta e depois faça login novamente."},
-    "SS-AUTH-004":{title:"Conta já cadastrada",action:"Use o login existente ou cadastre outro e-mail."},
+    "SS-AUTH-004":{title:"Conta já cadastrada",action:"Use o login existente ou escolha outro nome de usuário."},
     "SS-AUTH-005":{title:"Verificação em duas etapas necessária",action:"Conclua a verificação 2FA na área de Segurança da Conta e tente novamente."},
     "SS-AUTH-006":{title:"Link de recuperação inválido ou expirado",action:"Solicite um novo link em Esqueci minha senha e use somente o e-mail mais recente recebido."},
     "SS-AUTH-007":{title:"Nova senha recusada",action:"Use uma senha com pelo menos 10 caracteres e diferente da senha anterior."},
@@ -56,7 +67,7 @@ window.Safety={
     if(s.includes("config_pendente"))code="SS-SYS-001";
     else if(s.includes("invalid login credentials")||s.includes("invalid credentials"))code="SS-AUTH-002";
     else if(s.includes("email not confirmed"))code="SS-AUTH-003";
-    else if(s.includes("user already registered")||s.includes("already been registered"))code="SS-AUTH-004";
+    else if(s.includes("nome de usuário já cadastrado")||s.includes("user already registered")||s.includes("already been registered"))code="SS-AUTH-004";
     else if(s.includes("mfa_required")||s.includes("aal2"))code="SS-AUTH-005";
     else if(s.includes("otp_expired")||s.includes("token has expired")||s.includes("expired token")||s.includes("invalid token")||s.includes("recovery")&&s.includes("expired"))code="SS-AUTH-006";
     else if(s.includes("password")&&(s.includes("too short")||s.includes("weak")||s.includes("at least")||s.includes("different from the old")||s.includes("same password")))code="SS-AUTH-007";
