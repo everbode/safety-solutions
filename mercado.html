@@ -28,7 +28,7 @@ function render(){
    }else{
      actions='<button class="btn primary small" onclick="buy('+x.id+')">Comprar</button><button class="btn small" onclick="counter('+x.id+')">Contraproposta</button>';
    }
-   return '<article class="card market-card '+(featured?'featured-card':'')+'"><div class="inline"><span class="tag '+(x.status==="available"?"ok":"warn")+'">'+x.status+'</span>'+(featured?'<span class="tag warn featured-badge">⭐ destaque</span>':'')+'</div><h3>'+x.product+'</h3><p class="muted">'+Safety.num(x.quantity)+' unidades • '+x.seller_username+(x.institution?' • '+x.institution:'')+'</p><div class="price">'+Safety.hc(x.price)+'</div><p class="muted">'+(x.description||"Sem observações adicionais.")+'</p>'+(featured?'<p class="muted">Destaque até '+Safety.date(x.featured_until)+'</p>':'')+'<footer class="actions">'+actions+'</footer></article>';
+   return '<article class="card market-card '+(featured?'featured-card':'')+'"><div class="inline"><span class="tag '+(x.status==="available"?"ok":"warn")+'">'+Safety.escapeHtml(x.status)+'</span>'+(featured?'<span class="tag warn featured-badge">⭐ destaque</span>':'')+'</div><h3>'+Safety.escapeHtml(x.product)+'</h3><p class="muted">'+Safety.num(x.quantity)+' unidades • '+Safety.escapeHtml(x.seller_username)+(x.institution?' • '+Safety.escapeHtml(x.institution):'')+'</p><div class="price">'+Safety.hc(x.price)+'</div><p class="muted">'+Safety.escapeHtml(x.description||"Sem observações adicionais.")+'</p>'+(featured?'<p class="muted">Destaque até '+Safety.date(x.featured_until)+'</p>':'')+'<footer class="actions">'+actions+'</footer></article>';
  }).join(""):'<div class="card"><p class="muted">Nenhuma oferta disponível.</p></div>'
 }
 async function buy(id){
