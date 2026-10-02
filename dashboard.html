@@ -45,11 +45,13 @@ async function loadChest(db){
 (async()=>{
  try{
   const db=Safety.db(),u=await Safety.requireUser();
-  const[{data:p},{data:w},{data:t}]=await Promise.all([
+  const[profileRes,walletRes,txRes]=await Promise.all([
     db.from("profiles").select("*").eq("id",u.id).single(),
     db.from("wallets").select("*").eq("user_id",u.id).single(),
     db.rpc("my_transactions")
   ]);
+  if(profileRes.error)throw profileRes.error;if(walletRes.error)throw walletRes.error;if(txRes.error)throw txRes.error;
+  const p=profileRes.data,w=walletRes.data,t=txRes.data;
   hello.textContent="Olá, "+(p?.username||u.email);balance.textContent=Safety.hc(w?.balance);status.textContent=p?.account_status||"—";type.textContent=p?.user_type||"—";
   const rows=(t||[]).slice(0,4);
   tx.innerHTML=rows.length?rows.map(x=>'<div class="card"><span class="tag">'+Safety.escapeHtml(x.status)+'</span><h3>'+Safety.escapeHtml(x.product)+' • '+Safety.num(x.quantity)+' un.</h3><p class="muted">'+(x.my_role==="buyer"?"Compra de ":"Venda para ")+Safety.escapeHtml(x.counterpart_username)+'</p><div class="price">'+Safety.hc(x.amount)+'</div></div>').join(""):'<div class="card"><p class="muted">Nenhuma transação ainda.</p></div>';
