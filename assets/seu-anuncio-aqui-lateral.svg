@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 600" role="img" aria-labelledby="title desc">
+<title id="title">Seu anúncio aqui</title><desc id="desc">Espaço publicitário disponível na Safety Solutions.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#151d27"/><stop offset="1" stop-color="#090e15"/></linearGradient><linearGradient id="gold"><stop stop-color="#f8d47c"/><stop offset="1" stop-color="#e3a82f"/></linearGradient><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#e3a82f" stroke-opacity=".07"/></pattern></defs>
+<rect width="440" height="600" rx="20" fill="url(#bg)"/><rect width="440" height="600" rx="20" fill="url(#grid)"/>
+<circle cx="350" cy="125" r="180" fill="#e3a82f" opacity=".04"/><rect x="22" y="22" width="396" height="556" rx="14" fill="none" stroke="#e3a82f" stroke-opacity=".36"/>
+<g transform="translate(165 80)" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round"><rect width="110" height="110" rx="24" stroke-width="2" opacity=".5"/><path d="M34 77 77 34M38 34h39v39" stroke-width="7"/></g>
+<g font-family="Arial,Helvetica,sans-serif" text-anchor="middle"><text x="220" y="260" fill="#bec8d4" font-size="27" letter-spacing="5">SEU</text><text x="220" y="328" fill="url(#gold)" font-size="55" font-weight="800">ANÚNCIO</text><text x="220" y="393" fill="url(#gold)" font-size="55" font-weight="800">AQUI</text><text x="220" y="482" fill="#aab5c2" font-size="16" letter-spacing="2">ESPAÇO PUBLICITÁRIO</text><text x="220" y="536" fill="#e7edf5" font-size="19" font-weight="800" letter-spacing="1">SAFETY <tspan fill="#e3a82f">SOLUTIONS</tspan></text></g>
+<path d="M160 434h120" stroke="#e3a82f" stroke-opacity=".45"/>
+</svg>

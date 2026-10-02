@@ -309,6 +309,17 @@ window.Safety={
       return link
     };
 
+    const makePlaceholder=(side=false)=>{
+      const card=document.createElement("div");
+      card.className="sponsor-card sponsor-supporter sponsor-empty"+(side?" sponsor-side-card":"");
+      card.dataset.sponsorPlaceholder="true";
+      const img=document.createElement("img");
+      img.src=side?"assets/seu-anuncio-aqui-lateral.svg":"assets/anuncie-aqui-banner.svg";
+      img.alt=side?"Seu anúncio aqui — espaço publicitário disponível":"Anuncie aqui — sua marca na Safety Solutions";
+      img.width=side?440:1200;img.height=side?600:240;img.loading="lazy";
+      card.appendChild(img);return card
+    };
+
     const fetchZone=async zone=>{
       const{data,error}=await db.rpc("sponsor_feed",{p_placement:placement,p_zone:zone});
       if(error)throw error;
@@ -317,32 +328,33 @@ window.Safety={
 
     try{
       const[leftAds,rightAds,bottomAds]=await Promise.all([fetchZone("left"),fetchZone("right"),fetchZone("bottom")]);
-      if(!leftAds.length&&!rightAds.length&&!bottomAds.length)return;
 
       const createRail=(side,ads)=>{
-        if(!ads.length)return null;
         const rail=document.createElement("aside");
         rail.className="sponsor-rail sponsor-rail-"+side;
         rail.setAttribute("aria-label","Patrocinadores");
-        const label=document.createElement("span");label.className="sponsor-label";label.textContent="Apoiadores";
+        const label=document.createElement("span");label.className="sponsor-label";label.textContent=ads.length?"Apoiadores":"Espaço publicitário";
         const stack=document.createElement("div");stack.className="sponsor-rail-stack";
-        ads.forEach(s=>stack.appendChild(makeCard(s,true)));
+        if(ads.length)ads.forEach(s=>stack.appendChild(makeCard(s,true)));
+        else stack.appendChild(makePlaceholder(true));
         rail.append(label,stack);document.body.appendChild(rail);return rail
       };
       createRail("left",leftAds);createRail("right",rightAds);
 
       const bottom=document.createElement("section");
       bottom.className="sponsor-zone sponsor-bottom-zone";
-      const label=document.createElement("span");label.className="sponsor-label";label.textContent="Apoiadores da Safety Solutions";
+      const label=document.createElement("span");label.className="sponsor-label";label.textContent=bottomAds.length?"Apoiadores da Safety Solutions":"Espaço publicitário";
       const desktop=document.createElement("div");desktop.className="sponsor-grid sponsor-bottom-grid";
-      bottomAds.forEach(s=>desktop.appendChild(makeCard(s,false)));
+      if(bottomAds.length)bottomAds.forEach(s=>desktop.appendChild(makeCard(s,false)));
+      else desktop.appendChild(makePlaceholder());
       const mobile=document.createElement("div");mobile.className="sponsor-grid sponsor-side-fallback";
-      [...leftAds,...rightAds].forEach(s=>mobile.appendChild(makeCard(s,false)));
+      for(const ads of [leftAds,rightAds]){
+        if(ads.length)ads.forEach(s=>mobile.appendChild(makeCard(s,false)));
+        else mobile.appendChild(makePlaceholder());
+      }
       bottom.append(label,desktop,mobile);
       main.appendChild(bottom);
 
-      if(!bottomAds.length)desktop.classList.add("hidden");
-      if(!leftAds.length&&!rightAds.length)mobile.classList.add("hidden")
     }catch(e){
       this.reportError(this.formatError(e,"sponsor-layout"))
     }

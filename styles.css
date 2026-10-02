@@ -160,3 +160,11 @@
   .daily-chest-action .btn{width:100%}
   .daily-chest-icon{width:58px;height:58px;font-size:32px}
 }
+
+/* Imagens dos espaços publicitários disponíveis */
+.sponsor-card.sponsor-empty{display:block;padding:0;min-height:0;border-color:#4a3c25;background:#0b1016;cursor:default}
+.sponsor-card.sponsor-empty:hover{transform:none;box-shadow:none}
+.sponsor-empty>img{display:block;width:100%;height:auto;object-fit:contain}
+.sponsor-rail .sponsor-empty{padding:0!important}
+.sponsor-side-fallback .sponsor-empty{grid-column:span 6}
+@media(max-width:900px){.sponsor-side-fallback .sponsor-empty{grid-column:span 12}}
