@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recuperar senha | Safety Solutions</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="i18n.js"></script>
+</head>
+<body>
+<header class="topbar"><div class="container nav"><a class="brand" href="index.html">SAFETY <span>SOLUTIONS</span></a><a class="btn small" href="login.html">Entrar</a></div></header>
+<main class="container">
+<div class="form-card panel" style="max-width:540px">
+<span class="eyebrow">RECUPERAÇÃO DE ACESSO</span>
+<h1>🔑 Recuperar senha</h1>
+<p class="muted">Solicite um link seguro para redefinir sua senha. Por privacidade, não informamos se o e-mail está cadastrado.</p>
+<div id="msg" class="notice hidden"></div>
+
+<form id="requestForm">
+<label>E-mail</label>
+<input id="email" type="email" autocomplete="email" required>
+<button class="btn primary" id="requestBtn" type="submit" style="width:100%;margin-top:18px">Enviar link de recuperação</button>
+</form>
+
+<form id="updateForm" class="hidden">
+<div class="notice"><b>Defina uma nova senha</b><p class="muted">Use pelo menos 10 caracteres e evite reutilizar senhas.</p></div>
+<label>Nova senha</label>
+<input id="newPassword" type="password" minlength="10" autocomplete="new-password" required>
+<label style="margin-top:14px">Confirmar nova senha</label>
+<input id="confirmPassword" type="password" minlength="10" autocomplete="new-password" required>
+<button class="btn primary" id="updateBtn" type="submit" style="width:100%;margin-top:18px">Salvar nova senha</button>
+</form>
+
+<div class="divider"></div>
+<p class="muted"><a class="gold" href="login.html">← Voltar ao login</a></p>
+</div>
+</main>
+<script>
+const db=Safety.db();
+let recoveryReady=false;
+
+function redirectUrl(){
+  const base=location.href.split("/").slice(0,-1).join("/");
+  return base+"/recuperar-senha.html?mode=update";
+}
+function showUpdate(){
+  recoveryReady=true;
+  requestForm.classList.add("hidden");
+  updateForm.classList.remove("hidden");
+  Safety.msg(msg,"✅ Link validado. Defina sua nova senha.","success");
+}
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==="PASSWORD_RECOVERY"&&session)showUpdate();
+});
+
+(async()=>{
+  try{
+    const q=new URLSearchParams(location.search);
+    const wantsUpdate=q.get("mode")==="update"||location.hash.includes("type=recovery")||q.has("code");
+    if(!wantsUpdate)return;
+    const{data,error}=await db.auth.getSession();
+    if(error)throw error;
+    if(data?.session)showUpdate();
+    else Safety.msg(msg,"O link de recuperação expirou ou já foi utilizado. Solicite um novo link.","error");
+  }catch(e){Safety.errorMsg(msg,e,"password-recovery-session")}
+})();
+
+requestForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(requestForm.dataset.submitting==="1")return;
+  requestForm.dataset.submitting="1";
+  requestBtn.disabled=true;
+  try{
+    const{error}=await db.auth.resetPasswordForEmail(email.value.trim(),{redirectTo:redirectUrl()});
+    if(error)throw error;
+    email.value="";
+    Safety.msg(msg,"✅ Se existir uma conta com esse e-mail, enviaremos um link de recuperação. Verifique também a caixa de spam.","success");
+  }catch(e){Safety.errorMsg(msg,e,"password-recovery-request")}
+  finally{delete requestForm.dataset.submitting;requestBtn.disabled=false}
+});
+
+updateForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(updateForm.dataset.submitting==="1"||!recoveryReady)return;
+  const pass=newPassword.value;
+  if(pass.length<10)return Safety.msg(msg,"A nova senha deve ter pelo menos 10 caracteres.","error");
+  if(pass!==confirmPassword.value)return Safety.msg(msg,"As senhas não coincidem.","error");
+  updateForm.dataset.submitting="1";
+  updateBtn.disabled=true;
+  try{
+    const{error}=await db.auth.updateUser({password:pass});
+    if(error)throw error;
+    await db.auth.signOut({scope:"global"}).catch(()=>{});
+    alert("Senha alterada com sucesso. Entre novamente com a nova senha.");
+    location.replace("login.html");
+  }catch(e){Safety.errorMsg(msg,e,"password-recovery-update")}
+  finally{delete updateForm.dataset.submitting;updateBtn.disabled=false}
+});
+</script>
+</body>
+</html>
