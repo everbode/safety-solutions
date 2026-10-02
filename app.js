@@ -22,6 +22,8 @@ window.Safety={
     "SS-AUTH-003":{title:"E-mail ainda não confirmado",action:"Confirme o e-mail da conta e depois faça login novamente."},
     "SS-AUTH-004":{title:"Conta já cadastrada",action:"Use o login existente ou cadastre outro e-mail."},
     "SS-AUTH-005":{title:"Verificação em duas etapas necessária",action:"Conclua a verificação 2FA na área de Segurança da Conta e tente novamente."},
+    "SS-AUTH-006":{title:"Link de recuperação inválido ou expirado",action:"Solicite um novo link em Esqueci minha senha e use somente o e-mail mais recente recebido."},
+    "SS-AUTH-007":{title:"Nova senha recusada",action:"Use uma senha com pelo menos 10 caracteres e diferente da senha anterior."},
     "SS-ACC-001":{title:"Conta não está ativa",action:"Verifique o status da conta. Se estiver aguardando aprovação, entre em contato com a moderação."},
     "SS-ACC-002":{title:"Exclusão automática indisponível",action:"Esta conta possui histórico comercial que precisa ser preservado. Entre em contato com a administração para tratar o encerramento da conta."},
     "SS-HC-001":{title:"HubCredit insuficiente",action:"Confira seu saldo de HC e reduza o valor da operação ou obtenha saldo suficiente antes de tentar novamente."},
@@ -56,6 +58,8 @@ window.Safety={
     else if(s.includes("email not confirmed"))code="SS-AUTH-003";
     else if(s.includes("user already registered")||s.includes("already been registered"))code="SS-AUTH-004";
     else if(s.includes("mfa_required")||s.includes("aal2"))code="SS-AUTH-005";
+    else if(s.includes("otp_expired")||s.includes("token has expired")||s.includes("expired token")||s.includes("invalid token")||s.includes("recovery")&&s.includes("expired"))code="SS-AUTH-006";
+    else if(s.includes("password")&&(s.includes("too short")||s.includes("weak")||s.includes("at least")||s.includes("different from the old")||s.includes("same password")))code="SS-AUTH-007";
     else if(s.includes("auth_required")||s.includes("jwt expired")||s.includes("session")&&s.includes("expired"))code="SS-AUTH-001";
     else if(s.includes("commercial history")||s.includes("cannot be deleted automatically"))code="SS-ACC-002";
     else if(s.includes("account is not active")||s.includes("awaiting_verification")||s.includes("account is suspended"))code="SS-ACC-001";
