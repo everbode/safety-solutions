@@ -10,7 +10,7 @@
 <script>
 let targetId=null,me=null,profile=null,myLinks=[];
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
-function logoHtml(p,cls="profile-logo"){const u=Safety.safeUrl(p.logo_url);return u?'<img class="'+cls+'" src="'+u+'" alt="" loading="lazy">':'<div class="'+cls+' ph">'+esc((p.institution||p.country||p.username||"S").slice(0,1).toUpperCase())+'</div>'}
+function logoHtml(p,cls="profile-logo"){const u=Safety.safeUrl(p.logo_url);return u?'<img class="'+cls+'" src="'+Safety.escapeHtml(u)+'" alt="" loading="lazy">':'<div class="'+cls+' ph">'+esc((p.institution||p.country||p.username||"S").slice(0,1).toUpperCase())+'</div>'}
 async function load(){
  try{
   const db=Safety.db();me=await Safety.requireUser();targetId=new URLSearchParams(location.search).get("id");if(!targetId)throw new Error("Perfil não informado");
