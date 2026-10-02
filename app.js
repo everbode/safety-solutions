@@ -153,7 +153,7 @@ window.Safety={
     if(el){el.className="notice error";el.textContent=info.text;el.classList.remove("hidden")}
   },
 
-  safeUrl(v){try{const u=new URL(v,location.href);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}},
+  safeUrl(v){try{const u=new URL(v,location.href);if(u.protocol==="https:")return u.href;const local=["localhost","127.0.0.1"].includes(location.hostname);return local&&u.protocol==="http:"?u.href:null}catch{return null}},
 
   async initGlobalNav(){
     const page=(location.pathname.split("/").pop()||"index.html").toLowerCase();
