@@ -558,6 +558,16 @@ Object.assign(entries,{
 "Exclusão automática indisponível":["Automatic deletion unavailable","Eliminación automática no disponible","Otomatik silme kullanılamıyor"],
 "Esta conta possui histórico comercial que precisa ser preservado. Entre em contato com a administração para tratar o encerramento da conta.":["This account has commercial history that must be preserved. Contact administration to arrange account closure.","Esta cuenta tiene historial comercial que debe conservarse. Contacta con la administración para gestionar el cierre de la cuenta.","Bu hesabın korunması gereken ticari geçmişi var. Hesabın kapatılması için yönetimle iletişime geçin."]
 });
+Object.assign(entries,{
+"Saúde Beta":["Beta Health","Salud Beta","Beta Sağlığı"],
+"Saúde da plataforma":["Platform health","Salud de la plataforma","Platform sağlığı"],
+"Verificação automática de integridade financeira, dados, permissões e pendências operacionais.":["Automatic checks for financial integrity, data, permissions, and operational issues.","Verificación automática de integridad financiera, datos, permisos y pendientes operativos.","Finansal bütünlük, veri, izinler ve operasyonel sorunlar için otomatik kontroller."],
+"Rodar verificação novamente":["Run checks again","Ejecutar verificación de nuevo","Kontrolleri yeniden çalıştır"],
+"Economia":["Economy","Economía","Ekonomi"],
+"Integridade de dados":["Data integrity","Integridad de datos","Veri bütünlüğü"],
+"Operações":["Operations","Operaciones","Operasyonlar"],
+"Verificação externa ainda necessária:":["External verification still required:","Aún se requiere verificación externa:","Harici doğrulama hâlâ gerekli:"]
+});
 const index={en:0,es:1,tr:2};
 const originalText=new WeakMap(),originalAttrs=new WeakMap();
 const langs={pt:"PT",en:"EN",es:"ES",tr:"TR"};
