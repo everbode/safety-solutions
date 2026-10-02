@@ -80,6 +80,8 @@ async function verifyCurrentSession(){
 }
 async function removeFactor(id){
  if(aal.currentLevel!=="aal2"){alert("Confirme esta sessão com 2FA antes de remover um fator.");return}
+ const policyApplies=policy.admin_mfa_required&&roleLevel>=Number(policy.mfa_min_level||30);
+ if(policyApplies&&verifiedFactors.length<=1){alert("Este é o último autenticador verificado e sua função exige 2FA. Adicione outro autenticador ou desative a exigência administrativa antes de removê-lo.");return}
  if(!confirm("Remover este autenticador da sua conta?"))return;
  try{const r=await db.auth.mfa.unenroll({factorId:id});if(r.error)throw r.error;await db.auth.refreshSession();await logSecurity("mfa_removed","TOTP");Safety.msg(msg,"✅ Fator 2FA removido.","success");await reloadSecurity()}catch(e){Safety.errorAlert(e,"mfa-unenroll")}
 }
